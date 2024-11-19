@@ -1,50 +1,121 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
+import { useState, useEffect } from "react";
+import {
+  IconButton,
+  Slider,
+  Typography,
+  Box,
+  Container,
+  CssBaseline,
+} from "@mui/material";
+import { Brightness7, Brightness4 } from "@mui/icons-material";
+import { ThemeProvider } from "@mui/material/styles";
+import { lightTheme, darkTheme } from "./theme";
 import { invoke } from "@tauri-apps/api/core";
-import "./App.css";
 
 function App() {
-  const [greetMsg, setGreetMsg] = useState("");
-  const [name, setName] = useState("");
+  const [mood, setMood] = useState(3);
+  const [darkMode, setDarkMode] = useState(false);
 
-  async function greet() {
-    // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-    setGreetMsg(await invoke("greet", { name }));
-  }
+  const moods = ["😢", "😟", "😐", "😊", "😁"];
+
+  const loadSavedMood = async () => {
+    try {
+      const savedMood = await invoke("load_mood");
+      setMood(savedMood as number);
+    } catch (e) {
+      console.error("Error loading mood:", e);
+    }
+  };
+
+  const handleMoodChange = async (value: number) => {
+    setMood(value);
+    try {
+      await invoke("save_mood", { mood: value });
+    } catch (e) {
+      console.error("Error saving mood:", e);
+    }
+  };
+
+  const toggleTheme = () => {
+    setDarkMode((prevMode) => !prevMode);
+  };
+
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme) {
+      setDarkMode(savedTheme === "dark");
+    }
+    loadSavedMood();
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("theme", darkMode ? "dark" : "light");
+  }, [darkMode]);
 
   return (
-    <main className="container">
-      <h1>Welcome to Tauri + React</h1>
-
-      <div className="row">
-        <a href="https://vitejs.dev" target="_blank">
-          <img src="/vite.svg" className="logo vite" alt="Vite logo" />
-        </a>
-        <a href="https://tauri.app" target="_blank">
-          <img src="/tauri.svg" className="logo tauri" alt="Tauri logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <p>Click on the Tauri, Vite, and React logos to learn more.</p>
-
-      <form
-        className="row"
-        onSubmit={(e) => {
-          e.preventDefault();
-          greet();
+    <ThemeProvider theme={darkMode ? darkTheme : lightTheme}>
+      <CssBaseline />
+      <Container
+        maxWidth="sm"
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+          textAlign: "center",
+          flexDirection: "column",
+          px: { xs: 2, sm: 3 },
+          py: { xs: 3, sm: 4 },
         }}
       >
-        <input
-          id="greet-input"
-          onChange={(e) => setName(e.currentTarget.value)}
-          placeholder="Enter a name..."
-        />
-        <button type="submit">Greet</button>
-      </form>
-      <p>{greetMsg}</p>
-    </main>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            width: "100%",
+          }}
+        >
+          <Typography
+            variant="h6"
+            sx={{ fontSize: { xs: "1.2rem", sm: "1.5rem" } }}
+          >
+            How are you feeling today?
+          </Typography>
+          <Typography
+            variant="h4"
+            sx={{
+              fontSize: { xs: "3rem", sm: "4rem" },
+              mt: 2,
+            }}
+          >
+            {moods[mood]}
+          </Typography>
+          <Slider
+            value={mood}
+            min={0}
+            max={4}
+            step={1}
+            marks
+            onChange={(_event, value) => handleMoodChange(value as number)}
+            sx={{
+              width: "80%",
+              maxWidth: 400,
+              mt: 2,
+              mx: "auto",
+            }}
+          />
+          <Box sx={{ mt: 2 }}>
+            <IconButton
+              onClick={toggleTheme}
+              sx={{ fontSize: { xs: 30, sm: 40 } }}
+            >
+              {darkMode ? <Brightness7 /> : <Brightness4 />}
+            </IconButton>
+          </Box>
+        </Box>
+      </Container>
+    </ThemeProvider>
   );
 }
 
