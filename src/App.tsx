@@ -147,7 +147,9 @@ function App() {
             style={{
               borderRadius: "50%",
               marginTop: "5px",
-              boxShadow: `0 0 20px ${moodSettings[mood].color}`, // Glowing effect
+              boxShadow: darkMode
+                ? `0 0 20px ${moodSettings[mood].color}`
+                : "none",
             }}
             animate={{
               backgroundColor: moodSettings[mood].color,
@@ -164,7 +166,7 @@ function App() {
           <Slider
             value={mood}
             min={0}
-            max={8} // Updated to accommodate 9 moods
+            max={8}
             step={1}
             marks
             onChange={(_event, value) => handleMoodChange(value as number)}
@@ -176,13 +178,13 @@ function App() {
               mt: 4,
               mx: "auto",
               "& .MuiSlider-thumb": {
-                transition: "transform 0.3s ease", // Smooth thumb movement
+                transition: "transform 0.3s ease",
               },
               "& .MuiSlider-rail": {
-                opacity: 0.3, // Slightly dim the rail
+                opacity: 0.3,
               },
               "& .MuiSlider-track": {
-                transition: "width 0.3s ease", // Smooth track resizing
+                transition: "width 0.3s ease",
               },
             }}
           />
