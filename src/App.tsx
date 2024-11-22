@@ -71,9 +71,9 @@ const moodSettings = [
 ];
 
 function App() {
-  const [mood, setMood] = useState(4); // Default mood: Excited
+  const [mood, setMood] = useState(4);
   const [darkMode, setDarkMode] = useState(false);
-  const [gradient, setGradient] = useState(moodSettings[mood].gradient); // Store the gradient
+  const [gradient, setGradient] = useState(moodSettings[mood].gradient);
 
   const loadSavedMood = async () => {
     try {
@@ -86,7 +86,7 @@ function App() {
 
   const handleMoodChange = async (value: number) => {
     setMood(value);
-    setGradient(moodSettings[value].gradient); // Update gradient on mood change
+    setGradient(moodSettings[value].gradient);
     try {
       await invoke("save_mood", { mood: value });
     } catch (e) {
@@ -118,14 +118,14 @@ function App() {
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
-          width: "100vw", 
+          width: "100vw",
           height: "100vh",
           textAlign: "center",
           flexDirection: "column",
           px: { xs: 2, sm: 3 },
           py: { xs: 3, sm: 4 },
-          background: `linear-gradient(45deg, ${gradient})`, 
-          transition: "background 3s ease-out", 
+          background: `linear-gradient(45deg, ${gradient})`,
+          transition: "background 3s ease-out",
         }}
       >
         <Container
