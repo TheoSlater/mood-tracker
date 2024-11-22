@@ -118,14 +118,14 @@ function App() {
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
-          width: "100vw", // Full width
-          height: "100vh", // Full height
+          width: "100vw", 
+          height: "100vh",
           textAlign: "center",
           flexDirection: "column",
           px: { xs: 2, sm: 3 },
           py: { xs: 3, sm: 4 },
-          background: `linear-gradient(45deg, ${gradient})`, // Smooth gradient background
-          transition: "background 3s ease-out", // Longer and more noticeable background transition
+          background: `linear-gradient(45deg, ${gradient})`, 
+          transition: "background 3s ease-out", 
         }}
       >
         <Container
