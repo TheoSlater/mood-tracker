@@ -9,16 +9,7 @@ interface ThemeToggleProps {
 
 const ThemeToggle: React.FC<ThemeToggleProps> = ({ darkMode, onToggle }) => {
   return (
-    <IconButton
-      onClick={onToggle}
-      sx={{
-        bgcolor: darkMode ? "grey.800" : "grey.200",
-        "&:hover": {
-          bgcolor: darkMode ? "grey.700" : "grey.300",
-        },
-        transition: "background-color 0.3s",
-      }}
-    >
+    <IconButton onClick={onToggle}>
       {darkMode ? <Brightness7 /> : <Brightness4 />}
     </IconButton>
   );
