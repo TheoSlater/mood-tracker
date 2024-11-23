@@ -1,21 +1,61 @@
 import { useState, useEffect } from "react";
-import { Typography, Box, Container, CssBaseline, Slider } from "@mui/material";
+import {
+  Typography,
+  Box,
+  Container,
+  CssBaseline,
+  Slider,
+  Button,
+  Switch,
+  FormControlLabel,
+  Tooltip,
+} from "@mui/material";
 import { ThemeProvider } from "@mui/material/styles";
-import { invoke } from "@tauri-apps/api/core";
 import { lightTheme, darkTheme } from "./theme";
 import { moodSettings } from "./utils/moodSettings";
 import ThemeToggle from "./components/ThemeToggle";
 import MoodCircle from "./components/MoodCircle";
+import { load } from "@tauri-apps/plugin-store";
 
 function App() {
-  const [mood, setMood] = useState(2);
+  const getCurrentDate = () => {
+    const today = new Date();
+    return today.toISOString().split("T")[0];
+  };
+
+  const [mood, setMood] = useState<number>(2);
   const [darkMode, setDarkMode] = useState<boolean | null>(null);
-  const [gradient, setGradient] = useState(moodSettings[mood].gradient);
+  const [gradient, setGradient] = useState<string>(moodSettings[mood].gradient);
+  const [selectedDate, setSelectedDate] = useState<string>(getCurrentDate());
+  const [moodHistory, setMoodHistory] = useState<{ [date: string]: number }>(
+    {}
+  );
+  const [isDeveloperMode, setIsDeveloperMode] = useState(false);
+
+  const getPreviousDate = (currentDate: string) => {
+    const date = new Date(currentDate);
+    date.setDate(date.getDate() - 1);
+    return date.toISOString().split("T")[0];
+  };
+
+  const getNextDate = (currentDate: string) => {
+    const date = new Date(currentDate);
+    date.setDate(date.getDate() + 1);
+    return date.toISOString().split("T")[0];
+  };
 
   const loadSavedMood = async () => {
     try {
-      const savedMood = await invoke("load_mood");
-      setMood(savedMood as number);
+      const store = await load("store.json", { autoSave: false });
+      const savedMoodHistory = await store.get<{ [date: string]: number }>(
+        "moodHistory"
+      );
+      if (savedMoodHistory) {
+        setMoodHistory(savedMoodHistory);
+        const currentMood = savedMoodHistory[selectedDate] || 2;
+        setMood(currentMood);
+        setGradient(moodSettings[currentMood].gradient);
+      }
     } catch (e) {
       console.error("Error loading mood:", e);
     }
@@ -24,8 +64,12 @@ function App() {
   const handleMoodChange = async (value: number) => {
     setMood(value);
     setGradient(moodSettings[value].gradient);
+    const newMoodHistory = { ...moodHistory, [selectedDate]: value };
+    setMoodHistory(newMoodHistory);
     try {
-      await invoke("save_mood", { mood: value });
+      const store = await load("store.json", { autoSave: false });
+      await store.set("moodHistory", newMoodHistory);
+      await store.save();
     } catch (e) {
       console.error("Error saving mood:", e);
     }
@@ -35,6 +79,20 @@ function App() {
     setDarkMode((prevMode) => !prevMode);
   };
 
+  const handleDateChange = (direction: "previous" | "today" | "next") => {
+    let newDate;
+    if (direction === "previous") {
+      newDate = getPreviousDate(selectedDate);
+    } else if (direction === "next") {
+      newDate = getNextDate(selectedDate);
+    } else {
+      newDate = getCurrentDate();
+    }
+    setSelectedDate(newDate);
+    setMood(moodHistory[newDate] || 2);
+    setGradient(moodSettings[moodHistory[newDate] || 2].gradient);
+  };
+
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme");
     if (savedTheme) {
@@ -42,9 +100,8 @@ function App() {
     } else {
       setDarkMode(false);
     }
-
     loadSavedMood();
-  }, []);
+  }, [selectedDate]);
 
   useEffect(() => {
     if (darkMode !== null) {
@@ -76,6 +133,7 @@ function App() {
             alignItems: "center",
             width: "100%",
             height: "100%",
+            padding: { xs: 2, sm: 4 },
           }}
         >
           <Container
@@ -84,16 +142,59 @@ function App() {
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
+              backgroundColor: (theme) =>
+                theme.palette.mode === "dark"
+                  ? "rgba(0, 0, 0, 0.5)"
+                  : "rgba(196, 196, 196, 0)",
+              borderRadius: 2,
+              padding: 3,
             }}
           >
             <Typography
               variant="h6"
-              sx={{ fontSize: { xs: "1.2rem", sm: "1.5rem" } }}
+              sx={{
+                fontSize: { xs: "1.2rem", sm: "1.5rem" },
+                fontWeight: 600,
+                color: (theme) => theme.palette.text.primary,
+              }}
             >
-              How are you feeling today?
+              How are you feeling on {selectedDate}?
             </Typography>
-            <MoodCircle mood={mood} darkMode={darkMode} />{" "}
-            {/* Use the MoodCircle component */}
+
+            <Box
+              sx={{ mt: 2, display: "flex", justifyContent: "center", gap: 2 }}
+            >
+              <Tooltip title="Previous Day">
+                <Button
+                  variant="contained"
+                  onClick={() => handleDateChange("previous")}
+                  disabled={selectedDate === getCurrentDate()}
+                >
+                  &lt;
+                </Button>
+              </Tooltip>
+              <Tooltip title="Today">
+                <Button
+                  variant="contained"
+                  onClick={() => handleDateChange("today")}
+                  sx={{ width: "100px" }}
+                  disabled={selectedDate === getCurrentDate()}
+                >
+                  Today
+                </Button>
+              </Tooltip>
+              {isDeveloperMode && (
+                <Tooltip title="Next Day">
+                  <Button
+                    variant="contained"
+                    onClick={() => handleDateChange("next")}
+                  >
+                    &gt;
+                  </Button>
+                </Tooltip>
+              )}
+            </Box>
+            <MoodCircle mood={mood} darkMode />
             <Slider
               value={mood}
               min={0}
@@ -105,16 +206,37 @@ function App() {
                 maxWidth: 400,
                 mt: 4,
                 mx: "auto",
+                color: (theme) =>
+                  theme.palette.mode === "dark"
+                    ? theme.palette.secondary.main
+                    : theme.palette.primary.main,
               }}
             />
             <Typography
               variant="h6"
-              sx={{ mt: 2, fontSize: { xs: "1rem", sm: "1.2rem" } }}
+              sx={{
+                mt: 2,
+                fontSize: { xs: "1rem", sm: "1.2rem" },
+                color: (theme) => theme.palette.text.primary,
+              }}
             >
               You are feeling: {moodSettings[mood].label}
             </Typography>
+
             <Box sx={{ mt: 4 }}>
               <ThemeToggle darkMode={darkMode} onToggle={toggleTheme} />
+            </Box>
+
+            <Box sx={{ mt: 4 }}>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={isDeveloperMode}
+                    onChange={() => setIsDeveloperMode(!isDeveloperMode)}
+                  />
+                }
+                label="Enable Developer Mode"
+              />
             </Box>
           </Container>
         </Box>

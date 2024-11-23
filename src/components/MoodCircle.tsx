@@ -11,7 +11,7 @@ const MoodCircle: React.FC<MoodCircleProps> = ({ mood, darkMode }) => {
     <motion.div
       style={{
         borderRadius: "50%",
-        marginTop: "5px",
+        marginTop: "30px",
         boxShadow: darkMode ? `0 0 20px ${moodSettings[mood].color}` : "none",
       }}
       animate={{
