@@ -5,7 +5,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { lightTheme, darkTheme } from "./theme";
 import { moodSettings } from "./utils/moodSettings";
 import ThemeToggle from "./components/ThemeToggle";
-import MoodCircle from "./components/MoodCircle"; // Import the new component
+import MoodCircle from "./components/MoodCircle";
 
 function App() {
   const [mood, setMood] = useState(2);
@@ -40,7 +40,7 @@ function App() {
     if (savedTheme) {
       setDarkMode(savedTheme === "dark");
     } else {
-      setDarkMode(false); // Default to light mode if no saved theme
+      setDarkMode(false);
     }
 
     loadSavedMood();
@@ -53,7 +53,7 @@ function App() {
   }, [darkMode]);
 
   if (darkMode === null) {
-    return null; // Wait for darkMode to be initialized before rendering the app
+    return null;
   }
 
   return (
