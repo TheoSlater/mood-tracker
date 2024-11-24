@@ -16,6 +16,7 @@ import { moodSettings } from "./utils/moodSettings";
 import ThemeToggle from "./components/ThemeToggle";
 import MoodCircle from "./components/MoodCircle";
 import { load } from "@tauri-apps/plugin-store";
+import { impactFeedback } from "@tauri-apps/plugin-haptics"
 
 function App() {
   const getCurrentDate = () => {
@@ -31,6 +32,9 @@ function App() {
     {}
   );
   const [isDeveloperMode, setIsDeveloperMode] = useState(false);
+  const [lastHapticInterval, setLastHapticInterval] = useState<number | null>(
+    null
+  );
 
   const getPreviousDate = (currentDate: string) => {
     const date = new Date(currentDate);
@@ -64,8 +68,15 @@ function App() {
   const handleMoodChange = async (value: number) => {
     setMood(value);
     setGradient(moodSettings[value].gradient);
+    const interval = Math.round(value * 100);
+    if (interval !== lastHapticInterval) {
+      setLastHapticInterval(interval);
+      impactFeedback("light");
+    }
+  
     const newMoodHistory = { ...moodHistory, [selectedDate]: value };
     setMoodHistory(newMoodHistory);
+  
     try {
       const store = await load("store.json", { autoSave: false });
       await store.set("moodHistory", newMoodHistory);
@@ -74,6 +85,7 @@ function App() {
       console.error("Error saving mood:", e);
     }
   };
+  
 
   const toggleTheme = () => {
     setDarkMode((prevMode) => !prevMode);

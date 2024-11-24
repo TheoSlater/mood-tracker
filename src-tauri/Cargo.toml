@@ -14,7 +14,7 @@ edition = "2021"
 name = "mood_tracker_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
-[build-dependencies]
+[build-dependencies]    
 tauri-build = { version = "2", features = [] }
 
 [dependencies]
@@ -23,4 +23,4 @@ tauri-plugin-shell = "2"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 tauri-plugin-store = "2"
-
+tauri-plugin-haptics = "2.0.0-rc"
