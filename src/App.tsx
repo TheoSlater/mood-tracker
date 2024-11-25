@@ -15,6 +15,7 @@ import MoodSlider from "./components/MoodSlider";
 import DateControls from "./components/DateControls";
 import ThemeToggle from "./components/ThemeToggle";
 import MoodCircle from "./components/MoodCircle";
+import DeveloperMode from "./components/DeveloperMode"; // Importing DeveloperMode component
 
 const getCurrentDate = () => new Date().toISOString().split("T")[0];
 
@@ -132,6 +133,36 @@ function App() {
     return null;
   }
 
+  const handleResetData = async () => {
+    try {
+      const store = await load("store.json", { autoSave: false });
+      await store.set("moodHistory", {});
+      await store.save();
+      impactFeedback("light");
+      alert("Data has been reset");
+    } catch (e) {
+      console.error("Error resetting data:", e);
+    }
+  };
+
+const handleDeleteData = async () => {
+  try {
+    const store = await load("store.json", { autoSave: false });
+    await store.clear(); // Clear all data
+    await store.save();
+    
+    impactFeedback("light");
+    alert("All data has been deleted");
+
+    // Reload the entire app
+    window.location.reload(); // This reloads the app, reflecting the change
+
+  } catch (e) {
+    console.error("Error deleting data:", e);
+  }
+};
+
+
   return (
     <ThemeProvider theme={darkMode ? darkTheme : lightTheme}>
       <CssBaseline />
@@ -155,42 +186,39 @@ function App() {
             padding: { xs: 2, sm: 4 },
           }}
         >
-          <Stack direction={"column"} sx={{ width: "100%" }}>
-            <Box
-              sx={{
-                padding: { xs: 2, sm: 4 },
-                width: "100%", // Ensure full width
-              }}
-            >
-              <DateControls
-                handleDateChange={handleDateChange}
-                mood={mood}
-                onDaySelect={handleDaySelect}
-                moodHistory={moodHistory}
-                setMoodHistory={setMoodHistory}
-                selectedDate={selectedDate}
-              />
-            </Box>
+          <Stack direction={"column"} sx={{ width: "100vw" }}>
+            <DateControls
+              handleDateChange={handleDateChange}
+              mood={mood}
+              onDaySelect={handleDaySelect}
+              moodHistory={moodHistory}
+              setMoodHistory={setMoodHistory}
+              selectedDate={selectedDate}
+            />
             <Container
               maxWidth="sm"
               sx={{
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
-                backgroundColor: (theme) =>
-                  theme.palette.mode === "dark" ? "#212121" : "#F5F5F5",
+                backgroundColor: (theme) => theme.palette.background.paper,
                 padding: 3,
                 borderRadius: 3,
                 boxShadow: 3,
+                width: "100%",
               }}
             >
               <MoodCircle mood={mood} darkMode />
               <MoodSlider
-                mood={mood}
+                mood={mood} 
                 handleMoodChange={handleMoodChange}
                 gradient={gradient}
               />
               <ThemeToggle darkMode={darkMode} onToggle={toggleTheme} />
+              <DeveloperMode
+              onResetData={handleResetData}
+              onDeleteData={handleDeleteData}
+            />
             </Container>
           </Stack>
         </Box>
