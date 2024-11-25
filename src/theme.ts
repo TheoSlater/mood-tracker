@@ -1,34 +1,50 @@
-import { createTheme } from "@mui/material/styles";
+import { createTheme } from '@mui/material/styles';
 
 const lightTheme = createTheme({
   palette: {
-    mode: "light",
+    mode: 'light',
     primary: {
-      main: "#1976d2",
+      main: '#4D96FF',
     },
     background: {
-      default: "#f5f5f5", // Light background color
-      paper: "rgba(255, 255, 255, 0.8)", // Slightly transparent light background for paper components
+      default: '#f8f9fa',
+      paper: 'rgba(255, 255, 255, 0.9)',
     },
     text: {
-      primary: "#000",
+      primary: '#2d3436',
     },
   },
   typography: {
+    fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
     h6: {
-      fontSize: "1.2rem",
+      fontSize: '1.2rem',
+      fontWeight: 600,
     },
     h4: {
-      fontSize: "3rem",
+      fontSize: '2.5rem',
+      fontWeight: 700,
     },
   },
   components: {
     MuiPaper: {
       styleOverrides: {
         root: {
-          background: "rgba(255, 255, 255, 0.8)", // Slightly transparent background in light mode
-          backdropFilter: "blur(10px)", // Apply blur effect
-          borderRadius: "8px", // Optional: rounded corners for a better frosted effect
+          background: 'rgba(255, 255, 255, 0.9)',
+          backdropFilter: 'blur(10px)',
+          borderRadius: 16,
+          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+        },
+      },
+    },
+    MuiContainer: {
+      styleOverrides: {
+        root: {
+          backdropFilter: 'blur(10px)',
+          borderRadius: 16,
+          transition: 'transform 0.2s ease-in-out',
+          '&:hover': {
+            transform: 'translateY(-2px)',
+          },
         },
       },
     },
@@ -37,37 +53,53 @@ const lightTheme = createTheme({
 
 const darkTheme = createTheme({
   palette: {
-    mode: "dark",
+    mode: 'dark',
     primary: {
-      main: "#90caf9",
+      main: '#4D96FF',
     },
     background: {
-      default: "#121212", // Dark background color
-      paper: "rgba(33, 33, 33, 0.4)", // Slightly transparent dark background for paper components
+      default: '#1a1a1a',
+      paper: 'rgba(30, 30, 30, 0.9)',
     },
     text: {
-      primary: "#fff",
+      primary: '#ffffff',
     },
   },
   typography: {
+    fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
     h6: {
-      fontSize: "1.2rem",
+      fontSize: '1.2rem',
+      fontWeight: 600,
     },
     h4: {
-      fontSize: "3rem",
+      fontSize: '2.5rem',
+      fontWeight: 700,
     },
   },
   components: {
     MuiPaper: {
       styleOverrides: {
         root: {
-          background: "rgba(33, 33, 33, 0.1)", // Slightly transparent background in dark mode
-          backdropFilter: "blur(10px)", // Apply blur effect
-          borderRadius: "8px", // Optional: rounded corners for a better frosted effect
+          background: 'rgba(30, 30, 30, 0.9)',
+          backdropFilter: 'blur(10px)',
+          borderRadius: 16,
+          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
+        },
+      },
+    },
+    MuiContainer: {
+      styleOverrides: {
+        root: {
+          backdropFilter: 'blur(10px)',
+          borderRadius: 16,
+          transition: 'transform 0.2s ease-in-out',
+          '&:hover': {
+            transform: 'translateY(-2px)',
+          },
         },
       },
     },
   },
 });
 
-export { lightTheme, darkTheme };
+export {lightTheme, darkTheme}
