@@ -323,6 +323,7 @@
 					"\".\"",
 				);
 				INFOPLIST_FILE = "mood-tracker_iOS/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Mood Tracker ";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -348,6 +349,7 @@
 					"$(TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME)",
 					"$(TOOLCHAIN_DIR)/usr/lib/swift-5.0/$(PLATFORM_NAME)",
 				);
+				MARKETING_VERSION = 0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.mood-tracker.app;
 				PRODUCT_NAME = "mood-tracker";
 				SDKROOT = iphoneos;
@@ -376,6 +378,7 @@
 					"\".\"",
 				);
 				INFOPLIST_FILE = "mood-tracker_iOS/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Mood Tracker ";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -401,6 +404,7 @@
 					"$(TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME)",
 					"$(TOOLCHAIN_DIR)/usr/lib/swift-5.0/$(PLATFORM_NAME)",
 				);
+				MARKETING_VERSION = 0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.mood-tracker.app;
 				PRODUCT_NAME = "mood-tracker";
 				SDKROOT = iphoneos;
