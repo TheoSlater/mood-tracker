@@ -1,25 +1,36 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { load } from '@tauri-apps/plugin-store';
 import { impactFeedback } from '@tauri-apps/plugin-haptics';
 import { moodSettings } from '../utils/moodSettings';
 
 export const useMood = (selectedDate: string) => {
-  const [mood, setMood] = useState<number>(2);
-  const [gradient, setGradient] = useState<string>(moodSettings[mood].gradient);
+  const [mood, setMood] = useState<number | null>(null);  // Start with null to track if mood is set
+  const [gradient, setGradient] = useState<string>('');
   const [moodHistory, setMoodHistory] = useState<{ [date: string]: number }>({});
   const [lastHapticInterval, setLastHapticInterval] = useState<number | null>(null);
+
+  useEffect(() => {
+    loadSavedMood();  // Load saved mood data when the component mounts
+  }, [selectedDate]);
 
   const loadSavedMood = async () => {
     try {
       const store = await load('store.json', { autoSave: false });
       const savedMoodHistory = await store.get<{ [date: string]: number }>('moodHistory');
+      
       if (savedMoodHistory) {
         setMoodHistory(savedMoodHistory);
-        // Finally fixedd this issue where 'sad' isnt being saved
-        const currentMood = typeof savedMoodHistory[selectedDate] === 'number' ? 
-          savedMoodHistory[selectedDate] : 2;
-        setMood(currentMood);
-        setGradient(moodSettings[currentMood].gradient);
+        const currentMood = savedMoodHistory[selectedDate]; // Get the mood for the selected date
+        if (currentMood !== undefined) {
+          setMood(currentMood);  // Set the mood from history if available
+          setGradient(moodSettings[currentMood].gradient);
+        } else {
+          // If no mood is set, do not reset to neutral (keep the current mood state)
+          if (mood === null) {
+            setMood(2);  // Set to neutral if no mood found in history and no existing mood
+            setGradient(moodSettings[2].gradient);
+          }
+        }
       }
     } catch (e) {
       console.error('Error loading mood:', e);
@@ -27,12 +38,10 @@ export const useMood = (selectedDate: string) => {
   };
 
   const handleMoodChange = async (value: number) => {
-    // Ensure value is treated as a number
-    const numericValue = Number(value);
-    setMood(numericValue);
-    setGradient(moodSettings[numericValue].gradient);
+    setMood(value);
+    setGradient(moodSettings[value].gradient);
     
-    const interval = Math.round(numericValue * 100);
+    const interval = Math.round(value * 100);
     if (interval !== lastHapticInterval) {
       setLastHapticInterval(interval);
       impactFeedback('light');
@@ -41,13 +50,12 @@ export const useMood = (selectedDate: string) => {
     // Create new history object with explicit number value
     const newMoodHistory = { 
       ...moodHistory, 
-      [selectedDate]: numericValue 
+      [selectedDate]: value 
     };
     setMoodHistory(newMoodHistory);
 
     try {
       const store = await load('store.json', { autoSave: false });
-      // Explicitly save as number
       await store.set('moodHistory', newMoodHistory);
       await store.save();
     } catch (e) {
@@ -55,46 +63,16 @@ export const useMood = (selectedDate: string) => {
     }
   };
 
-  const resetData = async () => {
-    try {
-      const store = await load('store.json', { autoSave: false });
-      await store.set('moodHistory', {});
-      await store.save();
-      setMoodHistory({});
-      setMood(2); // Reset to neutral
-      setGradient(moodSettings[2].gradient);
-      impactFeedback('light');
-      alert('Data has been reset');
-    } catch (e) {
-      console.error('Error resetting data:', e);
-    }
-  };
-
   const deleteData = async () => {
     try {
       const store = await load('store.json', { autoSave: false });
-      await store.clear();
+      await store.delete('moodHistory');
       await store.save();
       setMoodHistory({});
-      setMood(2);
-      setGradient(moodSettings[2].gradient);
-      impactFeedback('light');
-      alert('All data has been deleted');
-      window.location.reload();
     } catch (e) {
-      console.error('Error deleting data:', e);
+      console.error('Error deleting mood data:', e);
     }
   };
 
-  return {
-    mood,
-    setMood,
-    gradient,
-    moodHistory,
-    setMoodHistory,
-    handleMoodChange,
-    loadSavedMood,
-    resetData,
-    deleteData,
-  };
+  return { mood, gradient, moodHistory, setMoodHistory, handleMoodChange, loadSavedMood, deleteData };
 };

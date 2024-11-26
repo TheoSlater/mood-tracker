@@ -1,111 +1,130 @@
-import React, { useState } from "react";
-import { Box, Typography } from "@mui/material";
-import { moodSettings } from "../utils/moodSettings";
-import { load } from "@tauri-apps/plugin-store";
+import React from 'react';
+import { Box, Typography, Button } from '@mui/material';
 
-type DateControlsProps = {
-  handleDateChange: (direction: "previous" | "today" | "next") => void;
-  mood: number;
-  onDaySelect: (index: number) => void;
-  moodHistory: { [key: string]: number };
-  setMoodHistory: React.Dispatch<
-    React.SetStateAction<{ [key: string]: number }>
-  >;
+interface DateControlsProps {
   selectedDate: string;
-};
-
-const daysOfWeek = ["M", "T", "W", "T", "F", "S", "S"];
+  moodHistory: { [date: string]: number };
+  onDateChange: (newDate: string) => void;
+  getDateForDay: (index: number) => string;
+  getCurrentDate: () => string;
+}
 
 const DateControls: React.FC<DateControlsProps> = ({
-  mood,
-  onDaySelect,
+  selectedDate,
   moodHistory,
-  setMoodHistory,
+  onDateChange,
+  getDateForDay,
+  getCurrentDate,
 }) => {
-  const todayIndex = (new Date().getDay() + 6) % 7; 
-  const [selectedDay, setSelectedDay] = useState(todayIndex);
-
-  const today = new Date();
-  const todayDate = today.getDate(); 
-
-  const handleMoodChange = async (value: number) => {
-    const dayOfMonth = today.getDate() - (todayIndex - selectedDay);
-    const newMoodHistory = { ...moodHistory, [dayOfMonth]: value };
-    setMoodHistory(newMoodHistory);
-
-    try {
-      const store = await load("store.json", { autoSave: false });
-      await store.set("moodHistory", newMoodHistory);
-    } catch (e) {
-      console.error("Error saving mood:", e);
-    }
+  const getDayName = (date: string) => {
+    const days = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+    return days[new Date(date).getDay()];
   };
 
-  const handleDayClick = (index: number) => {
-    const dayOfMonth = today.getDate() - (todayIndex - index);
-    if (dayOfMonth <= todayDate) {
-      setSelectedDay(index);
-      onDaySelect(index);
-      const newMoodValue = mood;
-      handleMoodChange(newMoodValue);
-    }
+  const getDayNumber = (date: string) => {
+    return new Date(date).getDate();
   };
 
+  const generateWeekDays = () => {
+    const days = [];
+    for (let i = 0; i < 7; i++) {
+      const date = getDateForDay(i);
+      const isSelected = date === selectedDate;
+      const mood = moodHistory[date];
+      const isToday = date === getCurrentDate();
 
+      days.push({
+        date,
+        dayName: getDayName(date),
+        dayNumber: getDayNumber(date),
+        isSelected,
+        mood,
+        isToday,
+      });
+    }
+    return days;
+  };
+
+  const getMoodColor = (mood: number | undefined) => {
+    if (mood === undefined) return '#3A3A3A';
+    const colors = [
+      '#FF5252', // Very Bad
+      '#FF7F50', // Bad
+      '#FFC107', // Neutral
+      '#8BC34A', // Good
+      '#4CAF50', // Very Good
+    ];
+    return colors[mood];
+  };
 
   return (
-  <Box
-    sx={{
-      mb: "15px",
-      background: (theme) => theme.palette.background.paper, 
-      borderRadius: 2,
-      p: 2,
-    }}
-  >
-
-      <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", justifyContent: "center", flex: 1 }}>
-        {daysOfWeek.map((day, index) => (
-          <Box
-          key={index}
-          onClick={() => handleDayClick(index)}
+    <Box
+      sx={{
+        mb: "15px",
+        background: (theme) => theme.palette.background.paper,
+        borderRadius: 2,
+        p: 2,
+        width: '100%',
+      }}
+    >
+      <Box
+        sx={{
+          display: "flex",
+          gap: 0.5,
+          justifyContent: "space-between",
+          width: '100%',
+        }}
+      >
+        {generateWeekDays().map((day) => (
+          <Button
+            key={day.date}
+            onClick={() => {
+              if (day.date === selectedDate) return;
+              onDateChange(day.date); // Pass the exact date clicked
+            }}
+            variant={day.isSelected ? "contained" : "text"}
             sx={{
+              minWidth: 0,
+              flex: 1,
+              height: { xs: 50, sm: 60 },
+              p: 1,
+              borderRadius: 2,
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
               justifyContent: "center",
-              width: { xs: "12%", sm: "14%", md: "18%" },
-              height: { xs: 50, sm: 60 },
-              borderRadius: 2,
-              background: (theme) =>
-                selectedDay === index ? theme.palette.action.hover : "transparent",
               color: (theme) =>
-                selectedDay === index ? theme.palette.text.primary : theme.palette.text.secondary,
-              cursor: "pointer",
-              "&:hover": {
-                background: (theme) => theme.palette.action.hover,
+                day.isSelected 
+                  ? '#fff'
+                  : theme.palette.text.secondary,
+              border: day.isToday ? '2px solid #3A3A3A' : 'none', // Dark grey outline for today
+              '&:hover': {
+                backgroundColor: (theme) => 
+                  day.isSelected 
+                    ? theme.palette.primary.dark 
+                    : theme.palette.action.hover,
               },
-              transition: "background-color 0.3s ease",
             }}
           >
-            <Typography variant="body2">{day}</Typography>
+            <Typography 
+              variant="body2" 
+              sx={{ 
+                fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                fontWeight: day.isSelected ? 'bold' : 'normal',
+              }}
+            >
+              {day.dayName}
+            </Typography>
             <Box
               sx={{
-                mt: 1,
-                width: 8,
-                height: 8,
+                mt: 0.5,
+                width: 6,
+                height: 6,
                 borderRadius: "50%",
-                backgroundColor:
-                  selectedDay === index
-                    ? moodSettings[mood].color
-                    : moodHistory[today.getDate() - (todayIndex - index)] !==
-                      undefined
-                    ? moodSettings[
-                        moodHistory[today.getDate() - (todayIndex - index)]
-                      ].color
-                    : "#3A3A3A",
+                backgroundColor: getMoodColor(day.mood),
               }}
             />
-          </Box>
+          </Button>
         ))}
       </Box>
     </Box>
