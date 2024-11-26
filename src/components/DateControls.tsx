@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { useState, memo } from 'react';
 import { Box, Typography, Button } from '@mui/material';
 import { moodSettings } from '../utils/moodSettings';
 
@@ -17,6 +17,8 @@ const DateControls: React.FC<DateControlsProps> = ({
   getDateForDay,
   getCurrentDate,
 }) => {
+  const [draggingDate, setDraggingDate] = useState<string | null>(null);
+
   const getDayName = (date: string) => {
     const days = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
     return days[new Date(date).getDay()];
@@ -51,6 +53,12 @@ const DateControls: React.FC<DateControlsProps> = ({
     return moodSettings[mood].color;
   };
 
+  const handleButtonClick = (date: string) => {
+    if (date === selectedDate) return;
+    onDateChange(date); // Update the selected date immediately
+    setDraggingDate(date); // Set the dragging date to trigger animation
+  };
+
   return (
     <Box
       sx={{
@@ -72,10 +80,7 @@ const DateControls: React.FC<DateControlsProps> = ({
         {generateWeekDays().map((day) => (
           <Button
             key={day.date}
-            onClick={() => {
-              if (day.date === selectedDate) return;
-              onDateChange(day.date); // Pass the exact date clicked
-            }}
+            onClick={() => handleButtonClick(day.date)}
             variant={day.isSelected ? "contained" : "text"}
             sx={{
               minWidth: 0,
@@ -91,16 +96,22 @@ const DateControls: React.FC<DateControlsProps> = ({
                 day.isSelected 
                   ? '#fff'
                   : theme.palette.text.secondary,
-              border: day.isToday ? '2px solid #3A3A3A' : 'none', // Dark grey outline for today
+              border: day.isToday ? '2px solid #3A3A3A' : 'none',
               '&:hover': {
                 backgroundColor: (theme) => 
                   day.isSelected 
                     ? theme.palette.primary.dark 
                     : theme.palette.action.hover,
               },
+              transition: 'transform 0.3s ease-out, background-color 0.3s ease-out',
+              transform: draggingDate === day.date ? 'scale(1.1)' : 'scale(1)',
+              boxShadow: draggingDate === day.date ? '0px 4px 15px rgba(0, 0, 0, 0.3)' : 'none',
+              backgroundColor: draggingDate === day.date
+                ? (theme) => theme.palette.primary.main
+                : 'transparent',
+              position: 'relative',
+              zIndex: draggingDate === day.date ? 1 : 'auto',
             }}
-            aria-label={`Select mood for ${day.dayName}, ${day.dayNumber}`}
-            aria-selected={day.isSelected}
           >
             <Typography 
               variant="body2" 
@@ -118,6 +129,7 @@ const DateControls: React.FC<DateControlsProps> = ({
                 height: 6,
                 borderRadius: "50%",
                 backgroundColor: getMoodColor(day.mood),
+                transition: 'background-color 0.3s ease-out',
               }}
             />
           </Button>
@@ -127,4 +139,4 @@ const DateControls: React.FC<DateControlsProps> = ({
   );
 };
 
-export default memo(DateControls); // FIXED: Preventing unnecessary re-renders
+export default memo(DateControls); 
