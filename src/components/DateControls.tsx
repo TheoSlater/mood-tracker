@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { Box, Typography, Button } from '@mui/material';
+import { moodSettings } from '../utils/moodSettings';
 
 interface DateControlsProps {
   selectedDate: string;
@@ -47,14 +48,7 @@ const DateControls: React.FC<DateControlsProps> = ({
 
   const getMoodColor = (mood: number | undefined) => {
     if (mood === undefined) return '#3A3A3A';
-    const colors = [
-      '#FF5252', // Very Bad
-      '#FF7F50', // Bad
-      '#FFC107', // Neutral
-      '#8BC34A', // Good
-      '#4CAF50', // Very Good
-    ];
-    return colors[mood];
+    return moodSettings[mood].color;
   };
 
   return (
@@ -105,6 +99,8 @@ const DateControls: React.FC<DateControlsProps> = ({
                     : theme.palette.action.hover,
               },
             }}
+            aria-label={`Select mood for ${day.dayName}, ${day.dayNumber}`}
+            aria-selected={day.isSelected}
           >
             <Typography 
               variant="body2" 
@@ -131,4 +127,4 @@ const DateControls: React.FC<DateControlsProps> = ({
   );
 };
 
-export default DateControls;
+export default memo(DateControls); // FIXED: Preventing unnecessary re-renders

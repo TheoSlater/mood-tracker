@@ -25,6 +25,7 @@ function App() {
   }
 
 
+
   // Provide fallback value if mood is null
   const currentMood = mood === null ? 2 : mood;  // Fallback to neutral (2)
 
@@ -66,6 +67,7 @@ function App() {
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
+                backgroundColor: (theme) => theme.palette.background.paper,
                 padding: 3,
                 borderRadius: 3,
                 boxShadow: 3,

@@ -22,7 +22,6 @@ const MoodCircle: React.FC<MoodCircleProps> = ({ mood, darkMode }) => {
         }}
         animate={{
           scale: [1, 1.02, 1],
-          rotate: [0, 360], // Adds rotation
           width: moodSettings[mood].size,
           height: moodSettings[mood].size,
         }}
@@ -31,11 +30,6 @@ const MoodCircle: React.FC<MoodCircleProps> = ({ mood, darkMode }) => {
             duration: 2,
             repeat: Infinity,
             ease: "easeInOut",
-          },
-          rotate: {
-            duration: 10, // Duration for one full rotation
-            repeat: Infinity,
-            ease: "linear", // Smooth continuous rotation
           },
           width: {
             type: "spring",
