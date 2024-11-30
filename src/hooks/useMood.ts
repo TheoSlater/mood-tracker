@@ -19,34 +19,42 @@ export const useMood = (selectedDate: string) => {
     try {
       const store = await load('store.json', { autoSave: false });
       const savedMoodHistory = await store.get<{ [date: string]: { mood: number, emotions: string[] } }>('moodHistory');
-      
+
       if (savedMoodHistory) {
         setMoodHistory(savedMoodHistory);
         const currentMoodData = savedMoodHistory[date];
 
-        if (currentMoodData) {
+        if (currentMoodData && currentMoodData.mood in moodSettings) {
           setMood(currentMoodData.mood);
           setEmotions(currentMoodData.emotions);
           setGradient(moodSettings[currentMoodData.mood].gradient);
         } else {
-          setMood(null);
+          setMood(null); // Ensure no mood is set for unsaved dates
           setEmotions([]);
-          setGradient(moodSettings[2].gradient);
+          setGradient('');
         }
       } else {
-        setMood(null);
+        setMood(null); // No saved mood history
         setEmotions([]);
-        setGradient(moodSettings[2].gradient);
+        setGradient('');
       }
 
       setIsMoodLoaded(true);
     } catch (e) {
       console.error('Error loading mood:', e);
+      setMood(null);
+      setEmotions([]);
+      setGradient('');
       setIsMoodLoaded(true);
     }
   };
 
   const handleMoodChange = async (value: number) => {
+    if (!(value in moodSettings)) {
+      console.error('Invalid mood value:', value);
+      return;
+    }
+
     setMood(value);
     setGradient(moodSettings[value].gradient);
 
@@ -58,7 +66,7 @@ export const useMood = (selectedDate: string) => {
 
     const newMoodHistory = {
       ...moodHistory,
-      [selectedDate]: { mood: value, emotions }
+      [selectedDate]: { mood: value, emotions },
     };
     setMoodHistory(newMoodHistory);
 
@@ -76,7 +84,7 @@ export const useMood = (selectedDate: string) => {
 
     const newMoodHistory = {
       ...moodHistory,
-      [selectedDate]: { mood: mood ?? 2, emotions: newEmotions }
+      [selectedDate]: { mood: mood ?? 2, emotions: newEmotions },
     };
     setMoodHistory(newMoodHistory);
 
@@ -97,6 +105,7 @@ export const useMood = (selectedDate: string) => {
       setMoodHistory({});
       setMood(null);
       setEmotions([]);
+      setGradient('');
     } catch (e) {
       console.error('Error deleting mood data:', e);
     }
@@ -105,7 +114,7 @@ export const useMood = (selectedDate: string) => {
   return {
     mood,
     emotions,
-    gradient,
+    gradient: gradient || moodSettings[2]?.gradient || 'default-gradient',
     moodHistory,
     handleMoodChange,
     handleEmotionsChange,
@@ -113,4 +122,3 @@ export const useMood = (selectedDate: string) => {
     isMoodLoaded,
   };
 };
-
