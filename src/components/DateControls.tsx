@@ -4,9 +4,9 @@ import { moodSettings } from '../utils/moodSettings';
 
 interface DateControlsProps {
   selectedDate: string;
-  moodHistory: { [date: string]: number };
+  moodHistory: { [date: string]: { mood: number; emotions: string[] } }; // Update the type here
   onDateChange: (newDate: string) => void;
-  getDateForDay: (index: number) => string;
+  getDateForDay: (day: number) => string;
   getCurrentDate: () => string;
 }
 
@@ -33,9 +33,9 @@ const DateControls: React.FC<DateControlsProps> = ({
     for (let i = 0; i < 7; i++) {
       const date = getDateForDay(i);
       const isSelected = date === selectedDate;
-      const mood = moodHistory[date];
+      const mood = moodHistory[date]?.mood; // Access mood property
       const isToday = date === getCurrentDate();
-
+  
       days.push({
         date,
         dayName: getDayName(date),
@@ -47,6 +47,7 @@ const DateControls: React.FC<DateControlsProps> = ({
     }
     return days;
   };
+  
 
   const getMoodColor = (mood: number | undefined) => {
     if (mood === undefined) return '#3A3A3A';

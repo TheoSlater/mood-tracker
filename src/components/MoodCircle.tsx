@@ -24,6 +24,7 @@ const MoodCircle: React.FC<MoodCircleProps> = ({ mood, darkMode }) => {
           scale: [1, 1.02, 1],
           width: moodSettings[mood].size,
           height: moodSettings[mood].size,
+          rotate: [0, 360],
         }}
         transition={{
           scale: {
@@ -40,6 +41,11 @@ const MoodCircle: React.FC<MoodCircleProps> = ({ mood, darkMode }) => {
             type: "spring",
             stiffness: 100,
             damping: 15,
+          },
+          rotate: {
+            duration: 10, 
+            repeat: Infinity,
+            ease: "linear",
           },
         }}
       />

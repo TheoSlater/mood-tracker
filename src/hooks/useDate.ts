@@ -14,7 +14,6 @@ export const useDate = () => {
   const handleDateChange = (newDate: string) => {
     setSelectedDate(newDate);
   };
-  
 
   return {
     selectedDate,

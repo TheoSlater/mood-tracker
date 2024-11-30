@@ -1,14 +1,14 @@
 import React from "react";
-import { Slider, Typography } from "@mui/material";
+import {  Slider, Typography } from "@mui/material";
 import { moodSettings } from "../utils/moodSettings"; 
 
 interface MoodSliderProps {
   mood: number;
   handleMoodChange: (value: number) => void;
-  gradient: string;
+  gradient: string;  // Use gradient here
 }
 
-const MoodSlider: React.FC<MoodSliderProps> = ({ mood, handleMoodChange }) => (
+const MoodSlider: React.FC<MoodSliderProps> = ({ mood, handleMoodChange, gradient }) => (
   <>
     <Slider
       value={mood}

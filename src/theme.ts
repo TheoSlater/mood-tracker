@@ -102,4 +102,4 @@ const darkTheme = createTheme({
   },
 });
 
-export {lightTheme, darkTheme}
+export { lightTheme, darkTheme };
