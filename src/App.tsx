@@ -11,7 +11,7 @@ import MoodMenu from './components/MoodMenu';
 import { useMood } from './hooks/useMood';
 import { useTheme } from './hooks/useTheme';
 import { useDate } from './hooks/useDate';
-import NotesSection from './components/NotesSection';
+// import NotesSection from './components/NotesSection'; // Will add this back in.
 
 function App() {
   const { selectedDate, handleDateChange, getDateForDay, getCurrentDate } = useDate();
