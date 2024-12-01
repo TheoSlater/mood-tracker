@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { ThemeProvider, CssBaseline, Box, Container, Stack, Typography } from '@mui/material';
 import { lightTheme, darkTheme } from './theme';
 import DateControls from './components/DateControls';
@@ -11,19 +11,24 @@ import MoodMenu from './components/MoodMenu';
 import { useMood } from './hooks/useMood';
 import { useTheme } from './hooks/useTheme';
 import { useDate } from './hooks/useDate';
+import NotesSection from './components/NotesSection';
 
 function App() {
   const { selectedDate, handleDateChange, getDateForDay, getCurrentDate } = useDate();
-  const { mood, gradient, moodHistory, handleMoodChange, deleteData, isMoodLoaded } = useMood(selectedDate);
+  const { 
+    mood, 
+    emotions: currentEmotions, 
+    gradient, 
+    moodHistory, 
+    handleMoodChange, 
+    handleEmotionsChange, 
+    deleteData, 
+    isMoodLoaded 
+  } = useMood(selectedDate);
   const { darkMode, toggleTheme } = useTheme();
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [wizardOpen, setWizardOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [emotions, setEmotions] = useState<string[]>([]);
-
-  useEffect(() => {
-    // This ensures loadSavedMood is called automatically when selectedDate changes
-  }, [selectedDate]);
 
   if (!isMoodLoaded) {
     return <div>Loading...</div>;
@@ -31,7 +36,8 @@ function App() {
 
   const handleWizardComplete = (data: { mood: number; emotions: string[] }) => {
     handleMoodChange(data.mood);
-    setEmotions(data.emotions);
+    handleEmotionsChange(data.emotions);
+    setWizardOpen(false);
     setIsEditing(false);
   };
 
@@ -65,7 +71,7 @@ function App() {
         <SettingsDialog
           open={settingsOpen}
           onClose={() => setSettingsOpen(false)}
-          darkMode={darkMode ?? false} // Fallback to false if darkMode is null
+          darkMode={darkMode ?? false}
           onToggleTheme={toggleTheme}
           onDeleteData={deleteData}
         />
@@ -77,7 +83,7 @@ function App() {
           }}
           onComplete={handleWizardComplete}
           initialMood={isEditing ? mood ?? 2 : 2}
-          initialEmotions={emotions}
+          initialEmotions={currentEmotions}
         />
         <Box
           sx={{
@@ -116,7 +122,7 @@ function App() {
                 <AddMoodButton onOpenWizard={() => setWizardOpen(true)} />
               ) : (
                 <>
-                  {mood !== null && <MoodCircle mood={mood} darkMode={darkMode ?? false} />} {/* Fallback to false if darkMode is null */}
+                  {mood !== null && <MoodCircle mood={mood} darkMode={darkMode ?? false} />}
                   <Typography
                     variant="h6"
                     sx={{
@@ -127,7 +133,7 @@ function App() {
                   >
                     {moodDescription}
                   </Typography>
-                  {emotions.length > 0 && (
+                  {currentEmotions.length > 0 && (
                     <Typography
                       variant="body1"
                       sx={{
@@ -136,11 +142,13 @@ function App() {
                         color: (theme) => theme.palette.text.secondary,
                       }}
                     >
-                      Emotions: {emotions.join(', ')}
+                      Emotions: {currentEmotions.join(', ')}
                     </Typography>
                   )}
                 </>
               )}
+              {/* TODO: FIX THIS (WIP) */}
+              {/* <NotesSection selectedDate={selectedDate}/> */}
             </Container>
           </Stack>
         </Box>

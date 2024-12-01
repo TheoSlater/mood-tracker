@@ -3,49 +3,67 @@ import { load } from '@tauri-apps/plugin-store';
 import { impactFeedback } from '@tauri-apps/plugin-haptics';
 import { moodSettings } from '../utils/moodSettings';
 
+interface MoodData {
+  mood: number;
+  emotions: string[];
+  journal?: string;
+}
+
 export const useMood = (selectedDate: string) => {
   const [mood, setMood] = useState<number | null>(null);
   const [emotions, setEmotions] = useState<string[]>([]);
+  const [journal, setJournal] = useState<string>('');
   const [gradient, setGradient] = useState<string>('');
-  const [moodHistory, setMoodHistory] = useState<{ [date: string]: { mood: number, emotions: string[] } }>({});
+  const [moodHistory, setMoodHistory] = useState<{ [date: string]: MoodData }>({});
   const [lastHapticInterval, setLastHapticInterval] = useState<number | null>(null);
   const [isMoodLoaded, setIsMoodLoaded] = useState<boolean>(false);
 
   useEffect(() => {
-    loadSavedMood(selectedDate);
-  }, [selectedDate]);
+    loadSavedMood();
+  }, []);
 
-  const loadSavedMood = async (date: string) => {
+  useEffect(() => {
+    updateCurrentMood();
+  }, [selectedDate, moodHistory]);
+
+  const loadSavedMood = async () => {
     try {
       const store = await load('store.json', { autoSave: false });
-      const savedMoodHistory = await store.get<{ [date: string]: { mood: number, emotions: string[] } }>('moodHistory');
+      const savedMoodHistory = await store.get<{ [date: string]: MoodData }>('moodHistory');
 
       if (savedMoodHistory) {
         setMoodHistory(savedMoodHistory);
-        const currentMoodData = savedMoodHistory[date];
-
-        if (currentMoodData && currentMoodData.mood in moodSettings) {
-          setMood(currentMoodData.mood);
-          setEmotions(currentMoodData.emotions);
-          setGradient(moodSettings[currentMoodData.mood].gradient);
-        } else {
-          setMood(null); // Ensure no mood is set for unsaved dates
-          setEmotions([]);
-          setGradient('');
-        }
-      } else {
-        setMood(null); // No saved mood history
-        setEmotions([]);
-        setGradient('');
       }
-
       setIsMoodLoaded(true);
     } catch (e) {
-      console.error('Error loading mood:', e);
+      console.error('Error loading mood history:', e);
+      setIsMoodLoaded(true);
+    }
+  };
+
+  const updateCurrentMood = () => {
+    const currentMoodData = moodHistory[selectedDate];
+    
+    if (currentMoodData && currentMoodData.mood in moodSettings) {
+      setMood(currentMoodData.mood);
+      setEmotions(currentMoodData.emotions || []);
+      setJournal(currentMoodData.journal || '');
+      setGradient(moodSettings[currentMoodData.mood].gradient);
+    } else {
       setMood(null);
       setEmotions([]);
+      setJournal('');
       setGradient('');
-      setIsMoodLoaded(true);
+    }
+  };
+
+  const saveMoodHistory = async (newMoodHistory: typeof moodHistory) => {
+    try {
+      const store = await load('store.json', { autoSave: false });
+      await store.set('moodHistory', newMoodHistory);
+      await store.save();
+    } catch (e) {
+      console.error('Error saving mood history:', e);
     }
   };
 
@@ -55,46 +73,56 @@ export const useMood = (selectedDate: string) => {
       return;
     }
 
-    setMood(value);
-    setGradient(moodSettings[value].gradient);
+    const newMoodHistory = {
+      ...moodHistory,
+      [selectedDate]: {
+        ...moodHistory[selectedDate],
+        mood: value,
+        emotions: moodHistory[selectedDate]?.emotions || []
+      }
+    };
+
+    setMoodHistory(newMoodHistory);
+    await saveMoodHistory(newMoodHistory);
 
     const interval = Math.round(value * 100);
     if (interval !== lastHapticInterval) {
       setLastHapticInterval(interval);
       impactFeedback('light');
     }
-
-    const newMoodHistory = {
-      ...moodHistory,
-      [selectedDate]: { mood: value, emotions },
-    };
-    setMoodHistory(newMoodHistory);
-
-    try {
-      const store = await load('store.json', { autoSave: false });
-      await store.set('moodHistory', newMoodHistory);
-      await store.save();
-    } catch (e) {
-      console.error('Error saving mood:', e);
-    }
   };
 
   const handleEmotionsChange = async (newEmotions: string[]) => {
-    setEmotions(newEmotions);
-
+    const currentMood = moodHistory[selectedDate]?.mood ?? 2;
+    
     const newMoodHistory = {
       ...moodHistory,
-      [selectedDate]: { mood: mood ?? 2, emotions: newEmotions },
+      [selectedDate]: {
+        ...moodHistory[selectedDate],
+        mood: currentMood,
+        emotions: newEmotions
+      }
     };
-    setMoodHistory(newMoodHistory);
 
-    try {
-      const store = await load('store.json', { autoSave: false });
-      await store.set('moodHistory', newMoodHistory);
-      await store.save();
-    } catch (e) {
-      console.error('Error saving emotions:', e);
-    }
+    setMoodHistory(newMoodHistory);
+    await saveMoodHistory(newMoodHistory);
+  };
+
+  const handleJournalChange = async (newJournal: string) => {
+    const currentMood = moodHistory[selectedDate]?.mood ?? 2;
+    const currentEmotions = moodHistory[selectedDate]?.emotions || [];
+    
+    const newMoodHistory = {
+      ...moodHistory,
+      [selectedDate]: {
+        mood: currentMood,
+        emotions: currentEmotions,
+        journal: newJournal
+      }
+    };
+
+    setMoodHistory(newMoodHistory);
+    await saveMoodHistory(newMoodHistory);
   };
 
   const deleteData = async () => {
@@ -105,6 +133,7 @@ export const useMood = (selectedDate: string) => {
       setMoodHistory({});
       setMood(null);
       setEmotions([]);
+      setJournal('');
       setGradient('');
     } catch (e) {
       console.error('Error deleting mood data:', e);
@@ -114,10 +143,12 @@ export const useMood = (selectedDate: string) => {
   return {
     mood,
     emotions,
+    journal,
     gradient: gradient || moodSettings[2]?.gradient || 'default-gradient',
     moodHistory,
     handleMoodChange,
     handleEmotionsChange,
+    handleJournalChange,
     deleteData,
     isMoodLoaded,
   };
