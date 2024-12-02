@@ -1,10 +1,10 @@
-import React, { useState, memo } from 'react';
-import { Box, Typography, Button } from '@mui/material';
-import { moodSettings } from '../utils/moodSettings';
+import React, { useState, memo } from "react";
+import { Box, Typography, Button, useTheme } from "@mui/material";
+import { moodSettings } from "../utils/moodSettings";
 
 interface DateControlsProps {
   selectedDate: string;
-  moodHistory: { [date: string]: { mood: number; emotions: string[] } }; // Update the type here
+  moodHistory: { [date: string]: { mood: number; emotions: string[] } };
   onDateChange: (newDate: string) => void;
   getDateForDay: (day: number) => string;
   getCurrentDate: () => string;
@@ -18,24 +18,22 @@ const DateControls: React.FC<DateControlsProps> = ({
   getCurrentDate,
 }) => {
   const [draggingDate, setDraggingDate] = useState<string | null>(null);
+  const theme = useTheme(); // Add this line to access the theme
 
   const getDayName = (date: string) => {
-    const days = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+    const days = ["S", "M", "T", "W", "T", "F", "S"];
     return days[new Date(date).getDay()];
   };
 
-  const getDayNumber = (date: string) => {
-    return new Date(date).getDate();
-  };
+  const getDayNumber = (date: string) => new Date(date).getDate();
 
   const generateWeekDays = () => {
     const days = [];
     for (let i = 0; i < 7; i++) {
       const date = getDateForDay(i);
       const isSelected = date === selectedDate;
-      const mood = moodHistory[date]?.mood; // Access mood property
+      const mood = moodHistory[date]?.mood;
       const isToday = date === getCurrentDate();
-  
       days.push({
         date,
         dayName: getDayName(date),
@@ -47,27 +45,26 @@ const DateControls: React.FC<DateControlsProps> = ({
     }
     return days;
   };
-  
 
-  const getMoodColor = (mood: number | undefined) => {
-    if (mood === undefined) return '#3A3A3A';
-    return moodSettings[mood].color;
-  };
+  const getMoodColor = (mood: number | undefined) =>
+    mood !== undefined ? moodSettings[mood].color : "#b0b0b0";
 
   const handleButtonClick = (date: string) => {
-    if (date === selectedDate) return;
-    onDateChange(date); // Update the selected date immediately
-    setDraggingDate(date); // Set the dragging date to trigger animation
+    if (date !== selectedDate) {
+      onDateChange(date);
+      setDraggingDate(date);
+    }
   };
 
   return (
     <Box
       sx={{
         mb: "15px",
-        background: (theme) => theme.palette.background.paper,
+        background: (theme) => theme.palette.background.paper, // Now using theme here
         borderRadius: 2,
         p: 2,
-        width: '100%',
+        width: "100%",
+        boxShadow: "0px 4px 15px rgba(0, 0, 0, 0.1)",
       }}
     >
       <Box
@@ -75,7 +72,7 @@ const DateControls: React.FC<DateControlsProps> = ({
           display: "flex",
           gap: 0.5,
           justifyContent: "space-between",
-          width: '100%',
+          width: "100%",
         }}
       >
         {generateWeekDays().map((day) => (
@@ -93,32 +90,35 @@ const DateControls: React.FC<DateControlsProps> = ({
               flexDirection: "column",
               alignItems: "center",
               justifyContent: "center",
-              color: (theme) =>
-                day.isSelected 
-                  ? '#fff'
-                  : theme.palette.text.secondary,
-              border: day.isToday ? '2px solid #3A3A3A' : 'none',
-              '&:hover': {
-                backgroundColor: (theme) => 
-                  day.isSelected 
-                    ? theme.palette.primary.dark 
-                    : theme.palette.action.hover,
+              color: day.isSelected ? "#fff" : theme.palette.text.secondary, // Using theme here as well
+              border: day.isToday
+                ? `2px solid ${theme.palette.primary.main}`
+                : "none",
+              "&:hover": {
+                backgroundColor: day.isSelected
+                  ? theme.palette.primary.dark
+                  : theme.palette.action.hover,
               },
-              transition: 'transform 0.3s ease-out, background-color 0.3s ease-out',
-              transform: draggingDate === day.date ? 'scale(1.1)' : 'scale(1)',
-              boxShadow: draggingDate === day.date ? '0px 4px 15px rgba(0, 0, 0, 0.3)' : 'none',
-              backgroundColor: draggingDate === day.date
-                ? (theme) => theme.palette.primary.main
-                : 'transparent',
-              position: 'relative',
-              zIndex: draggingDate === day.date ? 1 : 'auto',
+              transition:
+                "transform 0.3s ease-out, background-color 0.3s ease-out",
+              transform: draggingDate === day.date ? "scale(1.1)" : "scale(1)",
+              boxShadow:
+                draggingDate === day.date
+                  ? "0px 4px 15px rgba(0, 0, 0, 0.2)"
+                  : "none",
+              position: "relative",
+              zIndex: draggingDate === day.date ? 1 : "auto",
+              outline: "none",
+              "&:focus-visible": {
+                outline: `2px solid ${theme.palette.primary.main}`,
+              },
             }}
           >
-            <Typography 
-              variant="body2" 
-              sx={{ 
-                fontSize: { xs: '0.75rem', sm: '0.875rem' },
-                fontWeight: day.isSelected ? 'bold' : 'normal',
+            <Typography
+              variant="body2"
+              sx={{
+                fontSize: { xs: "0.75rem", sm: "0.875rem" },
+                fontWeight: day.isSelected ? "bold" : "normal",
               }}
             >
               {day.dayName}
@@ -126,11 +126,11 @@ const DateControls: React.FC<DateControlsProps> = ({
             <Box
               sx={{
                 mt: 0.5,
-                width: 6,
-                height: 6,
+                width: 8,
+                height: 8,
                 borderRadius: "50%",
                 backgroundColor: getMoodColor(day.mood),
-                transition: 'background-color 0.3s ease-out',
+                transition: "background-color 0.3s ease-out",
               }}
             />
           </Button>
@@ -140,4 +140,4 @@ const DateControls: React.FC<DateControlsProps> = ({
   );
 };
 
-export default memo(DateControls); 
+export default memo(DateControls);
