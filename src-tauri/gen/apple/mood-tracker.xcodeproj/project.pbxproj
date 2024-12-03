@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1870EFCB22DA711CE6E350AC /* libapp.a in Resources */ = {isa = PBXBuildFile; fileRef = 690F6008339EBCD2B6521C73 /* libapp.a */; };
 		49FB717F760403E2E8E27DBC /* libapp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 30FCC3E869407187ABF9D1EF /* libapp.a */; };
 		69C4166918C2C1FC1DFC1F40 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6B4A1A7115C6C8741893EC81 /* CoreGraphics.framework */; };
 		6AB53A80A8DB3B7013DAB130 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B8E5DEE686C01160CBCCA22C /* WebKit.framework */; };
@@ -27,10 +28,13 @@
 		30FCC3E869407187ABF9D1EF /* libapp.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libapp.a; sourceTree = "<group>"; };
 		4AB5CCAF6E3039AD80E8B980 /* MetalKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalKit.framework; path = System/Library/Frameworks/MetalKit.framework; sourceTree = SDKROOT; };
 		4E52AF8C63A296033C3AC85D /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
-		601E5CA7C21A37251CAB0031 /* Info.plist */ = {isa = PBXFileReference; explicitFileType = sourcecode.swift; path = Info.plist; sourceTree = "<group>"; };
+		601E5CA7C21A37251CAB0031 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		601F0742ADE0770C697C3D7B /* libapp.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libapp.a; sourceTree = "<group>"; };
+		690F6008339EBCD2B6521C73 /* libapp.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libapp.a; sourceTree = "<group>"; };
 		6B4A1A7115C6C8741893EC81 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		78A9A6C63E8C6F31B2340F92 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		791B67F70020F22186FDF1A6 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		83147946402D8A4907BD5528 /* libapp.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libapp.a; sourceTree = "<group>"; };
 		97B86F0A2E4C40BB3A3995D6 /* bindings.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = bindings.h; sourceTree = "<group>"; };
 		99A7E795A5C154B6966FB99F /* lib.rs */ = {isa = PBXFileReference; lastKnownFileType = text; path = lib.rs; sourceTree = "<group>"; };
 		B00C549DF05F4A080941F7DD /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
@@ -71,6 +75,14 @@
 			path = ../../src;
 			sourceTree = "<group>";
 		};
+		1F06277CFAA75116409C29B6 /* debug */ = {
+			isa = PBXGroup;
+			children = (
+				83147946402D8A4907BD5528 /* libapp.a */,
+			);
+			path = debug;
+			sourceTree = "<group>";
+		};
 		3AC76F0939ECC1F70B2B7BCB /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -79,11 +91,29 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		3F2564AAEA46E0B322A775BD /* debug */ = {
+			isa = PBXGroup;
+			children = (
+				690F6008339EBCD2B6521C73 /* libapp.a */,
+			);
+			path = debug;
+			sourceTree = "<group>";
+		};
 		4A9231FA2558DA54903113BC /* Externals */ = {
 			isa = PBXGroup;
 			children = (
+				F931BE87BB5DD667EC179747 /* arm64 */,
+				603BF1BB4B7DB803FE02F7B0 /* arm64-sim */,
 			);
 			path = Externals;
+			sourceTree = "<group>";
+		};
+		603BF1BB4B7DB803FE02F7B0 /* arm64-sim */ = {
+			isa = PBXGroup;
+			children = (
+				1F06277CFAA75116409C29B6 /* debug */,
+			);
+			path = "arm64-sim";
 			sourceTree = "<group>";
 		};
 		6B8A7FBEC85C94CB52BA1C73 /* mood-tracker_iOS */ = {
@@ -126,6 +156,14 @@
 			path = Sources;
 			sourceTree = "<group>";
 		};
+		C554BD68B88DE40DD1521604 /* release */ = {
+			isa = PBXGroup;
+			children = (
+				601F0742ADE0770C697C3D7B /* libapp.a */,
+			);
+			path = release;
+			sourceTree = "<group>";
+		};
 		DFFC60248352AEBE96A5F916 = {
 			isa = PBXGroup;
 			children = (
@@ -148,6 +186,15 @@
 				AC86D924A5417694431A8036 /* bindings */,
 			);
 			path = "mood-tracker";
+			sourceTree = "<group>";
+		};
+		F931BE87BB5DD667EC179747 /* arm64 */ = {
+			isa = PBXGroup;
+			children = (
+				3F2564AAEA46E0B322A775BD /* debug */,
+				C554BD68B88DE40DD1521604 /* release */,
+			);
+			path = arm64;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -205,6 +252,7 @@
 				FAD580850D554BF289C6CD1E /* Assets.xcassets in Resources */,
 				EC1884E436BF824FD64B5807 /* LaunchScreen.storyboard in Resources */,
 				BA1BCA61141D908B3066346F /* assets in Resources */,
+				1870EFCB22DA711CE6E350AC /* libapp.a in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -323,7 +371,6 @@
 					"\".\"",
 				);
 				INFOPLIST_FILE = "mood-tracker_iOS/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "Mood Tracker ";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -349,13 +396,9 @@
 					"$(TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME)",
 					"$(TOOLCHAIN_DIR)/usr/lib/swift-5.0/$(PLATFORM_NAME)",
 				);
-				MARKETING_VERSION = 0.1;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.mood-tracker.app";
+				PRODUCT_BUNDLE_IDENTIFIER = com.mood-tracker.app;
 				PRODUCT_NAME = "mood-tracker";
 				SDKROOT = iphoneos;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
-				SUPPORTS_MACCATALYST = NO;
-				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALID_ARCHS = "arm64  arm64-sim";
 			};
@@ -381,7 +424,6 @@
 					"\".\"",
 				);
 				INFOPLIST_FILE = "mood-tracker_iOS/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "Mood Tracker ";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -407,13 +449,9 @@
 					"$(TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME)",
 					"$(TOOLCHAIN_DIR)/usr/lib/swift-5.0/$(PLATFORM_NAME)",
 				);
-				MARKETING_VERSION = 0.1;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.mood-tracker.app";
+				PRODUCT_BUNDLE_IDENTIFIER = com.mood-tracker.app;
 				PRODUCT_NAME = "mood-tracker";
 				SDKROOT = iphoneos;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
-				SUPPORTS_MACCATALYST = NO;
-				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALID_ARCHS = "arm64  arm64-sim";
 			};
