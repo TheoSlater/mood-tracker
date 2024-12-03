@@ -44,9 +44,6 @@ const lightTheme = createTheme({
           backdropFilter: "blur(10px)",
           borderRadius: 16,
           transition: "transform 0.2s ease-in-out",
-          "&:hover": {
-            transform: "translateY(-2px)",
-          },
         },
       },
     },
@@ -96,9 +93,6 @@ const darkTheme = createTheme({
           backdropFilter: "blur(10px)",
           borderRadius: 16,
           transition: "transform 0.2s ease-in-out",
-          "&:hover": {
-            transform: "translateY(-2px)",
-          },
         },
       },
     },

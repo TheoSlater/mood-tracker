@@ -9,12 +9,12 @@ interface MoodCircleProps {
 
 const MoodCircle: React.FC<MoodCircleProps> = ({ mood, darkMode }) => {
   return (
-    <Box sx={{ position: 'relative', my: 4 }}>
+    <Box sx={{ position: "relative", my: 4 }}>
       <motion.div
         style={{
           borderRadius: "50%",
           background: `radial-gradient(circle at 30% 30%, ${moodSettings[mood].color}, rgba(0,0,0,0.1))`,
-          boxShadow: darkMode 
+          boxShadow: darkMode
             ? `0 0 30px ${moodSettings[mood].color}80, 
                0 0 60px ${moodSettings[mood].color}40, 
                0 0 90px ${moodSettings[mood].color}20`
@@ -43,7 +43,7 @@ const MoodCircle: React.FC<MoodCircleProps> = ({ mood, darkMode }) => {
             damping: 15,
           },
           rotate: {
-            duration: 10, 
+            duration: 10,
             repeat: Infinity,
             ease: "linear",
           },
