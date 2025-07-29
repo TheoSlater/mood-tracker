@@ -1,5 +1,32 @@
 import { createTheme } from "@mui/material/styles";
 
+// Extend the theme interface to include custom date picker colors
+declare module "@mui/material/styles" {
+  interface Palette {
+    datePicker: {
+      background: string;
+      border: string;
+      selectedBackground: string;
+      hoverBackground: string;
+      dayLabel: string;
+      dateNumber: string;
+      selectedDateNumber: string;
+    };
+  }
+
+  interface PaletteOptions {
+    datePicker?: {
+      background?: string;
+      border?: string;
+      selectedBackground?: string;
+      hoverBackground?: string;
+      dayLabel?: string;
+      dateNumber?: string;
+      selectedDateNumber?: string;
+    };
+  }
+}
+
 const lightTheme = createTheme({
   palette: {
     mode: "light",
@@ -11,6 +38,15 @@ const lightTheme = createTheme({
     },
     text: {
       primary: "#000", // Text color for light mode
+    },
+    datePicker: {
+      background: "#ffffff",
+      border: "#e0e0e0",
+      selectedBackground: "#e3f2fd",
+      hoverBackground: "#f5f5f5",
+      dayLabel: "#666666",
+      dateNumber: "#000000",
+      selectedDateNumber: "#1976d2",
     },
   },
   typography: {
@@ -34,6 +70,15 @@ const darkTheme = createTheme({
     },
     text: {
       primary: "#fff", // Text color for dark mode
+    },
+    datePicker: {
+      background: "#2d2d2d",
+      border: "#404040",
+      selectedBackground: "#4a4a4a",
+      hoverBackground: "#3a3a3a",
+      dayLabel: "#b0b0b0",
+      dateNumber: "#ffffff",
+      selectedDateNumber: "#90caf9",
     },
   },
   typography: {

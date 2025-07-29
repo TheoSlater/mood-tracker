@@ -2,9 +2,9 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
 import { CssBaseline, ThemeProvider } from "@mui/material";
-import { lightTheme } from "./theme"; // Import the themes
+import { lightTheme, darkTheme } from "./theme";
 
-const currentTheme = lightTheme;
+const currentTheme = darkTheme;
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>

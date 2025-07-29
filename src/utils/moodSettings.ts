@@ -1,32 +1,38 @@
-export const moodSettings = [
-  {
-    color: "#D16BA5",
-    size: 150,
-    label: "Sad",
-    gradient: "rgba(209, 107, 165, 0.8), rgba(255, 255, 255, 0.2)",
-  },
-  {
-    color: "#FF94C2",
-    size: 160,
-    label: "Worried",
-    gradient: "rgba(255, 148, 194, 0.8), rgba(255, 255, 255, 0.2)",
-  },
-  {
-    color: "#FFD700",
-    size: 170,
-    label: "Neutral",
-    gradient: "rgba(255, 215, 0, 0.8), rgba(255, 255, 255, 0.2)",
-  },
-  {
-    color: "#ADFF2F",
-    size: 180,
-    label: "Happy",
-    gradient: "rgba(173, 255, 47, 0.8), rgba(255, 255, 255, 0.2)",
-  },
-  {
-    color: "#32CD32",
-    size: 190,
-    label: "Excited",
-    gradient: "rgba(50, 205, 50, 0.8), rgba(255, 255, 255, 0.2)",
-  },
-];
+import { Theme } from "@mui/material/styles";
+
+export const getMoodSettings = (theme: Theme) => {
+  const isDark = theme.palette.mode === "dark";
+
+  return [
+    {
+      label: "Sad",
+      size: 150,
+      colors: ["#E6A4D6", isDark ? "#6E4C77" : "#D6A8C7"], // softened pink/lavender
+      gradientAngle: 45,
+    },
+    {
+      label: "Worried",
+      size: 160,
+      colors: ["#FFB5D2", isDark ? "#6B505C" : "#F3C3D4"], // pale pink/rose
+      gradientAngle: 45,
+    },
+    {
+      label: "Neutral",
+      size: 170,
+      colors: ["#FFE873", isDark ? "#66624C" : "#F4DA91"], // warm golden glow
+      gradientAngle: 45,
+    },
+    {
+      label: "Happy",
+      size: 180,
+      colors: ["#CFFF70", isDark ? "#567B3E" : "#B8E66D"], // light lime/pastel green
+      gradientAngle: 45,
+    },
+    {
+      label: "Excited",
+      size: 190,
+      colors: ["#90EE90", isDark ? "#4E7754" : "#B0F2A6"], // light green/neon mint
+      gradientAngle: 45,
+    },
+  ];
+};
