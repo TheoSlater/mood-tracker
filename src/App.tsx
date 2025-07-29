@@ -9,6 +9,15 @@ export default function App() {
   const theme = useTheme();
   const moodSettings = getMoodSettings(theme);
 
+  const deadMood = {
+    label: "No Mood",
+    size: 140,
+    colors: ["#888888", "#444444"], // muted greys
+    gradientAngle: 0,
+    glowIntensity: 0,
+    intensity: 0.05,
+    animateGradient: false,
+  };
   // Track selected date (day number of current week)
   const [selectedDate, setSelectedDate] = useState<number>(
     new Date().getDate()
@@ -19,8 +28,9 @@ export default function App() {
   const [moodsByDate, setMoodsByDate] = useState<Record<number, number>>({});
 
   // Get current mood for the selected date or fallback to Neutral (index 2)
-  const currentMoodIndex = moodsByDate[selectedDate] ?? 2;
-  const currentMood = moodSettings[currentMoodIndex];
+  const currentMoodIndex = moodsByDate[selectedDate];
+  const currentMood =
+    currentMoodIndex !== undefined ? moodSettings[currentMoodIndex] : deadMood;
 
   // Slider changes mood for selected date
   const handleSliderChange = (_: Event, newValue: number | number[]) => {
