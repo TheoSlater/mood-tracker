@@ -6,6 +6,7 @@ import {
   CircularProgress,
   Snackbar,
   Fab,
+  Typography,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useState, useEffect } from "react";
@@ -163,11 +164,13 @@ export default function App() {
 
         <p>{currentMood.label}</p>
 
-        <Box sx={{ mt: 2, fontSize: "0.8rem", color: "text.secondary" }}>
+        {/* debug stuff here */}
+        {/* <Box sx={{ mt: 2, fontSize: "0.8rem", color: "text.secondary" }}>
           Today: {currentDay.dayName}, {currentDay.date}/{currentDay.month}/
           {currentDay.year}
-        </Box>
-        {currentMoodIndex !== undefined && (
+        </Box> */}
+
+        {currentMoodIndex == undefined && (
           <Box sx={{ fontSize: "0.8rem", color: "text.secondary" }}>
             Hit the button at the bottom to track your mood for today!
           </Box>
@@ -193,6 +196,10 @@ export default function App() {
           left: "50%",
           transform: "translateX(-50%)",
           p: 1,
+          display: "flex",
+          flexDirection: "column",
+          textAlign: "center",
+          alignItems: "center",
         }}
       >
         <Fab
@@ -206,6 +213,15 @@ export default function App() {
         >
           <Add />
         </Fab>
+        <Typography
+          variant="caption"
+          sx={{
+            mt: 2,
+            color: "text.secondary",
+          }}
+        >
+          Add mood
+        </Typography>
       </Box>
 
       <Snackbar

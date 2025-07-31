@@ -12,10 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "mood-tracker",
-        "decorations": false,
-        "titleBarStyle": "Overlay",
-        "fullscreen": true
+        "title": "mood-tracker"
       }
     ],
     "security": {

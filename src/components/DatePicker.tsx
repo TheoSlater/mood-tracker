@@ -1,6 +1,7 @@
-import { Box, Typography } from "@mui/material";
+import { Box, IconButton, Typography } from "@mui/material";
 import { styled, useTheme } from "@mui/material/styles";
 import { useDayService } from "../hooks/useDayService";
+import { ChevronLeft, ChevronRight } from "@mui/icons-material";
 
 const DateContainer = styled(Box)(({ theme }) => ({
   display: "flex",
@@ -88,7 +89,12 @@ export default function DatePicker({
   const { weekData, currentDay } = useDayService();
 
   return (
-    <Box>
+    <Box
+      sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}
+    >
+      <IconButton>
+        <ChevronLeft />
+      </IconButton>
       <DateContainer>
         {weekData.map((dayInfo) => {
           const isFutureDay =
@@ -141,6 +147,9 @@ export default function DatePicker({
           );
         })}
       </DateContainer>
+      <IconButton>
+        <ChevronRight />
+      </IconButton>
     </Box>
   );
 }
