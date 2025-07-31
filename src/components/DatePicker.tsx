@@ -12,33 +12,34 @@ const DateContainer = styled(Box)(({ theme }) => ({
   margin: "0 auto",
 }));
 
-const DateItem = styled(Box)<{ selected?: boolean; isToday?: boolean }>(
-  ({ theme, selected, isToday }) => ({
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    padding: theme.spacing(1),
-    paddingLeft: theme.spacing(1.25),
-    paddingRight: theme.spacing(1.25),
-    borderRadius: 10,
-    cursor: "pointer",
-    minWidth: "40px",
+const DateItem = styled(Box)<{
+  selected?: boolean;
+  isToday?: boolean;
+}>(({ theme, selected, isToday }) => ({
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  padding: theme.spacing(1),
+  paddingLeft: theme.spacing(1.25),
+  paddingRight: theme.spacing(1.25),
+  borderRadius: 10,
+  cursor: "pointer",
+  minWidth: "40px",
+  backgroundColor: selected
+    ? theme.palette.datePicker.selectedBackground
+    : "transparent",
+  transition: "all 0.2s ease",
+  position: "relative",
+  border: isToday
+    ? `2px solid ${theme.palette.datePicker.selectedBackground}`
+    : "2px solid transparent",
+  "&:hover": {
     backgroundColor: selected
       ? theme.palette.datePicker.selectedBackground
-      : "transparent",
-    transition: "all 0.2s ease",
-    position: "relative",
-    border: isToday
-      ? `2px solid ${theme.palette.datePicker.selectedBackground}`
-      : "2px solid transparent",
-    "&:hover": {
-      backgroundColor: selected
-        ? theme.palette.datePicker.selectedBackground
-        : theme.palette.datePicker.hoverBackground,
-      transform: "translateY(-2px)",
-    },
-  })
-);
+      : theme.palette.datePicker.hoverBackground,
+    transform: "translateY(-2px)",
+  },
+}));
 
 const MoodIndicator = styled("span")<{ color: string }>(({ color }) => ({
   position: "relative",
@@ -84,12 +85,19 @@ export default function DatePicker({
   moodSettings,
 }: DatePickerProps) {
   const theme = useTheme();
-  const { weekData } = useDayService();
+  const { weekData, currentDay } = useDayService();
 
   return (
     <Box>
       <DateContainer>
         {weekData.map((dayInfo) => {
+          const isFutureDay =
+            dayInfo.year > currentDay.year ||
+            (dayInfo.year === currentDay.year &&
+              (dayInfo.month > currentDay.month ||
+                (dayInfo.month === currentDay.month &&
+                  dayInfo.date > currentDay.date)));
+
           const moodIndex = moodsByDate[dayInfo.date];
           const moodColor =
             moodIndex !== undefined
@@ -98,10 +106,28 @@ export default function DatePicker({
 
           return (
             <DateItem
-              key={`${dayInfo.date}-${dayInfo.month}`}
+              key={`${dayInfo.date}-${dayInfo.month}-${dayInfo.year}`}
               selected={selectedDate === dayInfo.date}
               isToday={dayInfo.isToday}
-              onClick={() => onSelectDate(dayInfo.date)}
+              onClick={() => {
+                if (!isFutureDay) {
+                  onSelectDate(dayInfo.date);
+                }
+              }}
+              sx={{
+                opacity: isFutureDay ? 0.4 : 1,
+                pointerEvents: isFutureDay ? "none" : "auto",
+                cursor: isFutureDay ? "default" : "pointer",
+                "&:hover": isFutureDay
+                  ? {}
+                  : {
+                      backgroundColor:
+                        selectedDate === dayInfo.date
+                          ? theme.palette.datePicker.selectedBackground
+                          : theme.palette.datePicker.hoverBackground,
+                      transform: "translateY(-2px)",
+                    },
+              }}
             >
               <DayLabel>{dayInfo.dayAbbrev}</DayLabel>
               <DateNumber

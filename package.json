@@ -26,6 +26,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-morph": "^0.4.0",
+    "react-spring-bottom-sheet": "^3.4.1",
     "simplex-noise": "^4.0.3",
     "splines": "^1.0.0",
     "styled-components": "^6.1.13",

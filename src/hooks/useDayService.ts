@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { dayService, DayInfo } from "../dayService";
+import { dayService, DayInfo } from "../utils/dayService";
 
 export interface UseDayServiceReturn {
   currentDay: DayInfo;
