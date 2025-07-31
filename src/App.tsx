@@ -1,58 +1,70 @@
-import { Box, Slider, Stack } from "@mui/material";
+import { Box, Stack, Alert, Fade } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+
 import { AnimatedBlob } from "./components/blob";
 import { getMoodSettings } from "./utils/moodSettings";
 import DatePicker from "./components/DatePicker";
+import { useDayService, useNewDayDetection } from "./hooks/useDayService";
 
 export default function App() {
   const theme = useTheme();
   const moodSettings = getMoodSettings(theme);
 
+  const { currentDay } = useDayService(true);
+  const { isNewDay } = useNewDayDetection((dayInfo) => {
+    console.log("New day detected!", dayInfo);
+  });
+
   const deadMood = {
     label: "No Mood",
-    size: 140,
-    colors: ["#888888", "#444444"], // muted greys
+    size: 125,
+    colors: ["#888888", "#444444"],
     gradientAngle: 0,
     glowIntensity: 0,
     intensity: 0.05,
     animateGradient: false,
   };
-  // Track selected date (day number of current week)
-  const [selectedDate, setSelectedDate] = useState<number>(
-    new Date().getDate()
-  );
 
-  // Map of date (day number) to mood index
-  // Start with Neutral for all or empty and fallback later
-  const [moodsByDate, setMoodsByDate] = useState<Record<number, number>>({});
+  const [selectedDate, setSelectedDate] = useState<number>(currentDay.date);
 
-  // Get current mood for the selected date or fallback to Neutral (index 2)
+  useEffect(() => {
+    setSelectedDate(currentDay.date);
+  }, [currentDay.date]);
+
+  const [moodsByDate] = useState<Record<number, number>>({});
   const currentMoodIndex = moodsByDate[selectedDate];
   const currentMood =
     currentMoodIndex !== undefined ? moodSettings[currentMoodIndex] : deadMood;
 
-  // Slider changes mood for selected date
-  const handleSliderChange = (_: Event, newValue: number | number[]) => {
-    const index = Array.isArray(newValue) ? newValue[0] : newValue;
-    setMoodsByDate((prev) => ({
-      ...prev,
-      [selectedDate]: index,
-    }));
-  };
-
   return (
     <Box
       sx={{
-        minHeight: "100dvh",
-        width: "100dvw",
-        flex: 1,
+        height: "100dvh",
+        width: "100vw",
+        backgroundColor: theme.palette.background.default,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
         flexDirection: "column",
+        overflow: "hidden",
+        position: "relative",
       }}
     >
+      <Fade in={isNewDay}>
+        <Alert
+          severity="info"
+          sx={{
+            position: "absolute",
+            top: 20,
+            zIndex: 1000,
+            minWidth: 200,
+          }}
+        >
+          Welcome to {currentDay.dayName}! How are you feeling today?
+        </Alert>
+      </Fade>
+
       {currentMood && (
         <Stack direction="column" spacing={2} alignItems="center">
           <DatePicker
@@ -70,16 +82,11 @@ export default function App() {
             glowIntensity={6}
           />
           <p>{currentMood.label}</p>
-          <Slider
-            value={currentMoodIndex}
-            min={0}
-            max={moodSettings.length - 1}
-            step={1}
-            aria-label="Mood"
-            valueLabelDisplay="off"
-            sx={{ width: 300 }}
-            onChange={handleSliderChange}
-          />
+
+          <Box sx={{ mt: 2, fontSize: "0.8rem", color: "text.secondary" }}>
+            Today: {currentDay.dayName}, {currentDay.date}/{currentDay.month}/
+            {currentDay.year}
+          </Box>
         </Stack>
       )}
     </Box>

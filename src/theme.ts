@@ -1,6 +1,5 @@
 import { createTheme } from "@mui/material/styles";
 
-// Extend the theme interface to include custom date picker colors
 declare module "@mui/material/styles" {
   interface Palette {
     datePicker: {
