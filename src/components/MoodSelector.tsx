@@ -9,47 +9,87 @@ import {
   SwipeableDrawer,
   styled,
   Button,
-  Stepper,
-  Step,
-  StepLabel,
+  Paper,
+  Zoom,
+  Slide,
 } from "@mui/material";
-import { Close as CloseIcon } from "@mui/icons-material";
+import {
+  Close as CloseIcon,
+  CheckCircle as CheckIcon,
+} from "@mui/icons-material";
 import { AnimatedBlob } from "./blob";
 
-const MoodOption = styled(Box)<{ selected?: boolean }>(
-  ({ theme, selected }) => ({
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    padding: theme.spacing(2),
-    borderRadius: theme.spacing(2),
-    cursor: "pointer",
-    transition: "all 0.3s ease",
-    backgroundColor: selected ? theme.palette.action.selected : "transparent",
-    border: `2px solid ${
-      selected ? theme.palette.primary.main : "transparent"
-    }`,
-    "&:hover": {
-      backgroundColor: theme.palette.action.hover,
-      transform: "translateY(-4px)",
-    },
-  })
-);
+const MoodOption = styled(Paper, {
+  shouldForwardProp: (prop) => prop !== "selected",
+})<{ selected?: boolean }>(({ theme, selected }) => ({
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  padding: theme.spacing(3),
+  borderRadius: theme.spacing(3),
+  cursor: "pointer",
+  transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+  backgroundColor: selected
+    ? theme.palette.primary.light + "20"
+    : theme.palette.background.paper,
+  border: `3px solid ${selected ? theme.palette.primary.main : "transparent"}`,
+  position: "relative",
+  "&:hover": {
+    transform: selected ? "scale(1.02)" : "scale(1.01)",
+    backgroundColor: selected
+      ? theme.palette.primary.light + "20"
+      : theme.palette.action.hover,
+    boxShadow: theme.shadows[8],
+  },
+  "&:active": {
+    transform: "scale(0.98)",
+  },
+  boxShadow: selected ? theme.shadows[12] : theme.shadows[2],
+}));
 
 const MoodLabel = styled(Typography)(({ theme }) => ({
-  marginTop: theme.spacing(1),
-  fontWeight: 500,
+  marginTop: theme.spacing(1.5),
+  fontWeight: 600,
   textAlign: "center",
-  fontSize: "0.9rem",
+  fontSize: "0.95rem",
+  color: theme.palette.text.primary,
 }));
 
 const DragHandle = styled(Box)(({ theme }) => ({
-  width: 40,
+  width: 48,
   height: 4,
-  borderRadius: 3,
-  backgroundColor: theme.palette.text.disabled,
-  margin: "8px auto",
+  borderRadius: 4,
+  backgroundColor: theme.palette.divider,
+  margin: "12px auto 24px auto",
   cursor: "grab",
+  transition: "background-color 0.2s ease",
+  "&:hover": {
+    backgroundColor: theme.palette.text.secondary,
+  },
+}));
+
+const CheckMarkIcon = styled(CheckIcon)(({ theme }) => ({
+  position: "absolute",
+  top: 12,
+  right: 12,
+  color: theme.palette.primary.main,
+  fontSize: "1.5rem",
+}));
+
+const ConfirmationContainer = styled(Box)(({ theme }) => ({
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  padding: theme.spacing(6, 3),
+  textAlign: "center",
+}));
+
+const ActionButtonContainer = styled(Box)(({ theme }) => ({
+  display: "flex",
+  gap: theme.spacing(2),
+  width: "100%",
+  maxWidth: 320,
+  marginTop: theme.spacing(4),
 }));
 
 interface MoodSelectorProps {
@@ -85,7 +125,7 @@ const MemoizedBlob = memo(
       gradientAngle={gradientAngle}
       intensity={0.2}
       animateGradient={animate}
-      glowIntensity={4}
+      glowIntensity={animate ? 6 : 3}
     />
   ),
   (prev, next) =>
@@ -104,11 +144,7 @@ export default function MoodSelector({
   saving = false,
 }: MoodSelectorProps) {
   const [mounted, setMounted] = useState(false);
-
-  // Stepper state: 0 = select, 1 = confirm
-  const [step, setStep] = useState(0);
-
-  // Selected mood index (local state until confirmed)
+  const [showConfirmation, setShowConfirmation] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
   useEffect(() => {
@@ -118,7 +154,7 @@ export default function MoodSelector({
   // Reset when drawer closes
   useEffect(() => {
     if (!open) {
-      setStep(0);
+      setShowConfirmation(false);
       setSelectedIndex(null);
     }
   }, [open]);
@@ -126,45 +162,49 @@ export default function MoodSelector({
   const handleMoodClick = (index: number) => {
     if (saving) return;
     setSelectedIndex(index);
-    setStep(1); // move to confirm step
+    setShowConfirmation(true);
   };
 
   const handleBack = () => {
-    setStep(0);
+    setShowConfirmation(false);
     setSelectedIndex(null);
   };
 
   const handleConfirm = () => {
     if (selectedIndex !== null && !saving) {
       onSelectMood(selectedIndex);
-      // You can close the drawer here or stay open if you want
       onClose();
-      setStep(0);
+      setShowConfirmation(false);
       setSelectedIndex(null);
     }
   };
 
+  const handleDrawerClose = () => {
+    onClose();
+    setShowConfirmation(false);
+    setSelectedIndex(null);
+  };
+
   if (typeof window === "undefined" || !mounted) return null;
+
+  const selectedMood =
+    selectedIndex !== null ? moodSettings[selectedIndex] : null;
 
   return (
     <SwipeableDrawer
       anchor="bottom"
       open={open}
-      onClose={() => {
-        onClose();
-        setStep(0);
-        setSelectedIndex(null);
-      }}
+      onClose={handleDrawerClose}
       onOpen={onOpen}
       disableSwipeToOpen={false}
       swipeAreaWidth={24}
       PaperProps={{
         sx: {
-          borderTopLeftRadius: 16,
-          borderTopRightRadius: 16,
-          height: 800,
+          borderTopLeftRadius: 24,
+          borderTopRightRadius: 24,
+          maxHeight: "85vh",
           overflow: "hidden",
-          px: 2,
+          px: 3,
           pb: 4,
           display: "flex",
           flexDirection: "column",
@@ -173,117 +213,199 @@ export default function MoodSelector({
       ModalProps={{ keepMounted: true }}
     >
       <DragHandle />
+
       <Box
         sx={{
-          mb: 2,
+          mb: 3,
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
         }}
       >
-        <Typography variant="h6">How are you feeling?</Typography>
-        <IconButton onClick={onClose} disabled={saving}>
+        <Typography
+          variant="h5"
+          sx={{
+            fontWeight: 700,
+            color: "text.primary",
+          }}
+        >
+          {showConfirmation ? "Confirm your mood" : "How are you feeling?"}
+        </Typography>
+        <IconButton
+          onClick={handleDrawerClose}
+          disabled={saving}
+          sx={{
+            color: "text.secondary",
+            "&:hover": {
+              backgroundColor: "action.hover",
+            },
+          }}
+        >
           <CloseIcon />
         </IconButton>
       </Box>
 
-      <Stepper activeStep={step} alternativeLabel>
-        <Step>
-          <StepLabel>Select</StepLabel>
-        </Step>
-        <Step>
-          <StepLabel>Confirm</StepLabel>
-        </Step>
-      </Stepper>
+      <Box sx={{ flexGrow: 1, overflowY: "auto" }}>
+        {!showConfirmation ? (
+          <Fade in={!showConfirmation} timeout={300}>
+            <Grid container spacing={2} justifyContent="center">
+              {moodSettings.map((mood, index) => (
+                <Grid item xs={6} sm={4} md={3} key={index}>
+                  <Zoom
+                    in={!showConfirmation}
+                    timeout={300}
+                    style={{ transitionDelay: `${index * 50}ms` }}
+                  >
+                    <MoodOption
+                      selected={selectedIndex === index}
+                      onClick={() => handleMoodClick(index)}
+                      sx={{
+                        opacity: saving ? 0.6 : 1,
+                        pointerEvents: saving ? "none" : "auto",
+                        userSelect: "none",
+                      }}
+                      elevation={selectedIndex === index ? 8 : 2}
+                    >
+                      {selectedIndex === index && (
+                        <Zoom in={selectedIndex === index} timeout={200}>
+                          <CheckMarkIcon />
+                        </Zoom>
+                      )}
+                      <MemoizedBlob
+                        size={mood.size * 0.75}
+                        colors={mood.colors}
+                        gradientAngle={mood.gradientAngle}
+                        animate={selectedIndex === index}
+                      />
+                      <MoodLabel>{mood.label}</MoodLabel>
+                    </MoodOption>
+                  </Zoom>
+                </Grid>
+              ))}
+            </Grid>
+          </Fade>
+        ) : (
+          <Slide
+            direction="left"
+            in={showConfirmation}
+            timeout={400}
+            mountOnEnter
+            unmountOnExit
+          >
+            <ConfirmationContainer>
+              <Box sx={{ mb: 4 }}>
+                <MemoizedBlob
+                  size={selectedMood!.size * 1.3}
+                  colors={selectedMood!.colors}
+                  gradientAngle={selectedMood!.gradientAngle}
+                  animate={true}
+                />
+              </Box>
 
-      <Box sx={{ flexGrow: 1, overflowY: "auto", mt: 2 }}>
-        {step === 0 && (
-          <Grid container spacing={2} justifyContent="center">
-            {moodSettings.map((mood, index) => (
-              <Grid item xs={6} sm={4} key={index}>
-                <MoodOption
-                  selected={selectedIndex === index}
-                  onClick={() => handleMoodClick(index)}
+              <Typography
+                variant="h4"
+                sx={{
+                  fontWeight: 700,
+                  mb: 1,
+                  color: "text.primary",
+                }}
+              >
+                {selectedMood!.label}
+              </Typography>
+
+              <Typography
+                variant="body1"
+                sx={{
+                  color: "text.secondary",
+                  mb: 4,
+                  fontSize: "1.1rem",
+                }}
+              >
+                You're feeling {selectedMood!.label.toLowerCase()} today
+              </Typography>
+
+              <ActionButtonContainer>
+                <Button
+                  variant="outlined"
+                  onClick={handleBack}
+                  disabled={saving}
+                  size="large"
                   sx={{
-                    opacity: saving ? 0.6 : 1,
-                    pointerEvents: saving ? "none" : "auto",
-                    userSelect: "none",
+                    flex: 1,
+                    py: 1.5,
+                    borderRadius: 3,
+                    fontWeight: 600,
                   }}
                 >
-                  <MemoizedBlob
-                    size={mood.size * 0.6}
-                    colors={mood.colors}
-                    gradientAngle={mood.gradientAngle}
-                    animate={false} // no animation at selection step
-                  />
-                  <MoodLabel>{mood.label}</MoodLabel>
-                </MoodOption>
-              </Grid>
-            ))}
-          </Grid>
-        )}
-
-        {step === 1 && selectedIndex !== null && (
-          <Box
-            sx={{
-              textAlign: "center",
-            }}
-          >
-            <MemoizedBlob
-              size={moodSettings[selectedIndex].size}
-              colors={moodSettings[selectedIndex].colors}
-              gradientAngle={moodSettings[selectedIndex].gradientAngle}
-              animate={true} // animate on confirm step
-            />
-            <Typography variant="h6" sx={{ mt: 2 }}>
-              {moodSettings[selectedIndex].label}
-            </Typography>
-
-            <Box
-              sx={{ mt: 4, display: "flex", justifyContent: "center", gap: 2 }}
-            >
-              <Button variant="outlined" onClick={handleBack} disabled={saving}>
-                Back
-              </Button>
-              <Button
-                variant="contained"
-                onClick={handleConfirm}
-                disabled={saving}
-              >
-                Confirm
-              </Button>
-            </Box>
-          </Box>
+                  Back
+                </Button>
+                <Button
+                  variant="contained"
+                  onClick={handleConfirm}
+                  disabled={saving}
+                  size="large"
+                  sx={{
+                    flex: 1,
+                    py: 1.5,
+                    borderRadius: 3,
+                    fontWeight: 600,
+                    boxShadow: 4,
+                    "&:hover": {
+                      boxShadow: 8,
+                    },
+                  }}
+                >
+                  {saving ? "Saving..." : "Confirm"}
+                </Button>
+              </ActionButtonContainer>
+            </ConfirmationContainer>
+          </Slide>
         )}
       </Box>
 
-      {saving && (
-        <Fade in={saving}>
-          <Box
+      <Fade in={saving} timeout={300}>
+        <Box
+          sx={{
+            display: saving ? "flex" : "none",
+            justifyContent: "center",
+            alignItems: "center",
+            py: 2,
+            px: 3,
+            gap: 1.5,
+            backgroundColor: "action.hover",
+            borderRadius: 2,
+            mx: -3,
+            mt: 2,
+          }}
+        >
+          <CircularProgress size={20} thickness={4} />
+          <Typography
+            variant="body2"
             sx={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              mt: 4,
-              gap: 1,
+              color: "text.secondary",
+              fontWeight: 500,
             }}
           >
-            <CircularProgress size={16} />
-            <Typography variant="body2" color="text.secondary">
-              Saving your mood...
-            </Typography>
-          </Box>
-        </Fade>
-      )}
+            Saving your mood...
+          </Typography>
+        </Box>
+      </Fade>
 
-      {step === 0 && (
-        <Typography
-          variant="body2"
-          color="text.secondary"
-          sx={{ mt: 2, textAlign: "center" }}
-        >
-          Select a mood to record how you're feeling today
-        </Typography>
+      {!showConfirmation && (
+        <Fade in={!showConfirmation} timeout={300}>
+          <Typography
+            variant="body2"
+            sx={{
+              mt: 3,
+              textAlign: "center",
+              color: "text.secondary",
+              fontSize: "0.9rem",
+              lineHeight: 1.5,
+            }}
+          >
+            Tap a mood to record how you're feeling today
+          </Typography>
+        </Fade>
       )}
     </SwipeableDrawer>
   );

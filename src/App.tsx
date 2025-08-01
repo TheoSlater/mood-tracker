@@ -1,6 +1,5 @@
 import {
   Box,
-  Stack,
   Alert,
   Fade,
   CircularProgress,
@@ -16,7 +15,7 @@ import { getMoodSettings } from "./utils/moodSettings";
 import DatePicker from "./components/DatePicker";
 import { useDayService, useNewDayDetection } from "./hooks/useDayService";
 import { useMoodStorage } from "./hooks/useMoodStorage";
-import MoodSelector from "./components/MoodSelector"; // New component we'll create
+import MoodSelector from "./components/MoodSelector";
 import { Add } from "@mui/icons-material";
 
 export default function App() {
@@ -36,14 +35,14 @@ export default function App() {
     getMoodForDate,
   } = useMoodStorage();
 
-  const deadMood = {
-    label: "No Mood",
-    size: 125,
-    colors: ["#888888", "#555555"],
-    gradientAngle: 45,
+  const noMood = {
+    label: "",
+    size: 150,
+    colors: ["#333333"],
+    gradientAngle: 0,
     glowIntensity: 0,
-    intensity: 0.05,
-    animateGradient: true,
+    intensity: 0,
+    animateGradient: false,
   };
 
   const [selectedDate, setSelectedDate] = useState<number>(currentDay.date);
@@ -58,13 +57,12 @@ export default function App() {
 
   const currentMoodIndex = getMoodForDate(selectedDate);
   const currentMood =
-    currentMoodIndex !== undefined ? moodSettings[currentMoodIndex] : deadMood;
+    currentMoodIndex !== undefined ? moodSettings[currentMoodIndex] : noMood;
 
   const handleMoodSelect = async (moodIndex: number) => {
     try {
       setSaveStatus("saving");
 
-      // Create date object for the selected date
       const selectedDateObj = new Date();
       selectedDateObj.setDate(selectedDate);
 
@@ -73,7 +71,6 @@ export default function App() {
       setSaveStatus("success");
       setShowMoodSelector(false);
 
-      // Reset status after 2 seconds
       setTimeout(() => setSaveStatus("idle"), 2000);
     } catch (error) {
       console.error("Failed to save mood:", error);
@@ -90,7 +87,7 @@ export default function App() {
     return (
       <Box
         sx={{
-          height: "100dvh",
+          height: "100vh",
           width: "100vw",
           backgroundColor: theme.palette.background.default,
           display: "flex",
@@ -106,25 +103,25 @@ export default function App() {
   return (
     <Box
       sx={{
-        height: "100dvh",
+        height: "100vh",
         width: "100vw",
         backgroundColor: theme.palette.background.default,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        flexDirection: "column",
         overflow: "hidden",
         position: "relative",
       }}
     >
+      {/* Top alerts */}
       <Fade in={isNewDay}>
         <Alert
           severity="info"
           sx={{
             position: "absolute",
             top: 20,
+            left: "50%",
+            transform: "translateX(-50%)",
+            width: "90%",
+            maxWidth: 400,
             zIndex: 1000,
-            minWidth: 200,
           }}
         >
           Welcome to {currentDay.dayName}! How are you feeling today?
@@ -137,46 +134,86 @@ export default function App() {
           sx={{
             position: "absolute",
             top: 80,
+            left: "50%",
+            transform: "translateX(-50%)",
+            width: "90%",
+            maxWidth: 400,
             zIndex: 1000,
-            minWidth: 200,
           }}
         >
           Error loading moods: {moodError}
         </Alert>
       )}
 
-      <Stack direction="column" spacing={2} alignItems="center">
+      {/* Date picker pinned to top */}
+      <Box
+        sx={{
+          width: "100%",
+          maxWidth: 480,
+          px: 2,
+          pt: 2,
+          mx: "auto",
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 10,
+        }}
+      >
         <DatePicker
           selectedDate={selectedDate}
           onSelectDate={setSelectedDate}
           moodsByDate={moodsByDate}
           moodSettings={moodSettings}
         />
+      </Box>
 
-        <AnimatedBlob
-          size={currentMood.size}
-          colors={currentMood.colors}
-          gradientAngle={currentMood.gradientAngle}
-          intensity={0.25}
-          animateGradient
-          glowIntensity={6}
-        />
+      {/* Centered mood display */}
+      <Box
+        sx={{
+          height: "100%",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          textAlign: "center",
+          px: 2,
+        }}
+      >
+        <Box
+          sx={{
+            maxWidth: "80vw",
+            maxHeight: "60vh",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <AnimatedBlob
+            size={currentMood.size}
+            colors={currentMood.colors}
+            gradientAngle={currentMood.gradientAngle}
+            intensity={0.25}
+            animateGradient
+            glowIntensity={6}
+          />
+        </Box>
 
-        <p>{currentMood.label}</p>
+        <Typography variant="h6" sx={{ mt: 2 }}>
+          {currentMood.label}
+        </Typography>
 
-        {/* debug stuff here */}
-        {/* <Box sx={{ mt: 2, fontSize: "0.8rem", color: "text.secondary" }}>
-          Today: {currentDay.dayName}, {currentDay.date}/{currentDay.month}/
-          {currentDay.year}
-        </Box> */}
-
-        {currentMoodIndex == undefined && (
-          <Box sx={{ fontSize: "0.8rem", color: "text.secondary" }}>
+        {currentMoodIndex === undefined && (
+          <Typography
+            variant="caption"
+            sx={{ mt: 1, color: "text.secondary", maxWidth: 300 }}
+          >
             Hit the button at the bottom to track your mood for today!
-          </Box>
+          </Typography>
         )}
-      </Stack>
+      </Box>
 
+      {/* Mood selector modal */}
       {showMoodSelector && (
         <MoodSelector
           open={showMoodSelector}
@@ -189,6 +226,7 @@ export default function App() {
         />
       )}
 
+      {/* Add mood button */}
       <Box
         sx={{
           position: "fixed",
@@ -207,8 +245,8 @@ export default function App() {
           aria-label="add"
           onClick={handleBlobClick}
           sx={{
-            width: 68,
-            height: 68,
+            width: { xs: 56, sm: 68 },
+            height: { xs: 56, sm: 68 },
           }}
         >
           <Add />
@@ -216,24 +254,38 @@ export default function App() {
         <Typography
           variant="caption"
           sx={{
-            mt: 2,
+            mt: 1,
             color: "text.secondary",
+            fontSize: { xs: "0.7rem", sm: "0.75rem" },
           }}
         >
           Add mood
         </Typography>
       </Box>
 
+      {/* Save feedback */}
       <Snackbar
         open={saveStatus === "success"}
         autoHideDuration={2000}
         message="Mood saved successfully!"
+        ContentProps={{
+          sx: {
+            maxWidth: "90vw",
+            whiteSpace: "pre-line",
+          },
+        }}
       />
 
       <Snackbar
         open={saveStatus === "error"}
         autoHideDuration={3000}
         message="Failed to save mood. Please try again."
+        ContentProps={{
+          sx: {
+            maxWidth: "90vw",
+            whiteSpace: "pre-line",
+          },
+        }}
       />
     </Box>
   );
