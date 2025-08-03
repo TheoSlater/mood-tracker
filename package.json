@@ -16,6 +16,7 @@
     "@mui/icons-material": "^6.1.8",
     "@mui/material": "^6.1.7",
     "@mui/styled-engine-sc": "^6.1.7",
+    "@radix-ui/react-visually-hidden": "^1.2.3",
     "@react-three/fiber": "^8.17.10",
     "@tauri-apps/api": "^2.1.1",
     "@tauri-apps/plugin-shell": "^2",
@@ -30,7 +31,8 @@
     "simplex-noise": "^4.0.3",
     "splines": "^1.0.0",
     "styled-components": "^6.1.13",
-    "three": "^0.170.0"
+    "three": "^0.170.0",
+    "vaul": "^1.1.2"
   },
   "devDependencies": {
     "@tauri-apps/cli": "^2",

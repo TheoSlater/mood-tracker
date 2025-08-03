@@ -193,7 +193,7 @@ export default function App() {
             size={currentMood.size}
             colors={currentMood.colors}
             gradientAngle={currentMood.gradientAngle}
-            intensity={0.25}
+            intensity={0.4}
             animateGradient
             glowIntensity={6}
           />

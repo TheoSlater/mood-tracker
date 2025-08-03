@@ -438,5 +438,6 @@ export const BlobColors = {
     "#ff00ff",
     "#ff0080",
   ],
+
   neon: ["#ff006e", "#8338ec", "#3a86ff", "#06ffa5"],
 } as const;
